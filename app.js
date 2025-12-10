@@ -1,11 +1,10 @@
-// app.js —— 业务逻辑：加载/规范化/间隔/持久化/diff（修复版）
+// app.js —— 简化版：移除模块过滤逻辑
 export const PLAN = [3, 6, 12];
 const KEY  = 'flashcards_state_v1';
 
 let cards = [];
 let idx = 0;
 let showBack = false;
-let currentModule = '';
 
 /* 工具 */
 export const addDays  = (d, n) => { const t = new Date(d); t.setDate(t.getDate() + n); return t; };
@@ -28,18 +27,18 @@ function extractMyAiStr(backText) {
 
 /* 规范化一张卡 */
 function normalizeCard(raw, i) {
-  const module = raw.module || raw.key_module || '';
+  const module = (raw.module || 'default').trim();
   
   const original = raw.front.Original || raw.front.original || '';
   const explain  = raw.front.Explain  || raw.front.explain  || '';
   const usage    = raw.front.Usage    || raw.front.usage    || '';
   const extended = raw.front.Extended || raw.front.extended || ''; 
-  const ton      = raw.front.Tone     || raw.front.Tone || ''; 
+  const ton      = raw.front.Tone     || raw.front.tone || ''; 
   
   const backExplain = raw.back.Explain || raw.back.explain || '';
   const fluency = raw.back.Fluency || raw.back.fluency || ''; 
-  const backMy = raw.back.Mysentence || raw.back.Mysentence || ''; 
-  const backAI = raw.back.Corrected || raw.back.Corrected || ''; 
+  const backMy = raw.back.Mysentence || raw.back.mysentence || ''; 
+  const backAI = raw.back.Corrected || raw.back.corrected || ''; 
   
   const parts = [];
   if (module) parts.push(`🔹 ${module}`);
@@ -59,20 +58,19 @@ function normalizeCard(raw, i) {
   
   const backText = lines.join('\n').trim();
 
-  const key_module = raw.key_module || '';
-  const createdTime = raw.created_time || raw.createdTime || raw.CreatedTime || raw.dueDate || null; 
+  const createdTime = raw.back.Createdtime || raw.back.createdtime || null; 
 
-  const id = hashId((frontText || JSON.stringify(raw)) + ((module || '').trim()) + i);
+  const id = hashId((frontText || JSON.stringify(raw)) + module + i);
   return { 
     id, 
-    module: ((raw.module || key_module || 'default')).trim(), 
+    module, 
     frontText, 
     backText, 
     backMy, 
     backAI, 
-    step:0, 
-    lastReviewed:null, 
-    dueDate:null,
+    step: 0, 
+    lastReviewed: null, 
+    dueDate: null,
     createdTime 
   };
 }
@@ -102,25 +100,24 @@ function persist(card) {
   localStorage.setItem(KEY, JSON.stringify(state));
 }
 
-/* 筛选与队列 */
-export function setModule(m) { 
-  currentModule = (m || '').trim(); 
-  idx = 0;
+/* 快速跳转到某个模块的卡片 */
+export function jumpToModule(moduleName) { 
+  const targetModule = (moduleName || '').trim();
+  if (!targetModule) {
+    idx = 0; // 跳到第一张
+  } else {
+    const foundIdx = cards.findIndex(c => (c.module || '').trim() === targetModule);
+    idx = foundIdx >= 0 ? foundIdx : 0;
+  }
   showBack = false;
-  console.log('setModule:', currentModule);
+  console.log('jumpToModule:', targetModule, 'idx:', idx);
 }
 
 export const getModules = () => Array.from(new Set(cards.map(c => (c.module || '').trim()).filter(Boolean))).sort();
 
-export function filteredCards() {
-  if (!currentModule) return cards;
-  const trimmedModule = currentModule.trim();
-  return cards.filter(c => (c.module || '').trim() === trimmedModule);
-}
-
 export const dueList = (date = new Date()) => {
   const today = stripTime(date);
-  return filteredCards().filter(c => (!c.dueDate) || stripTime(new Date(c.dueDate)) <= today);
+  return cards.filter(c => (!c.dueDate) || stripTime(new Date(c.dueDate)) <= today);
 };
 
 /* 间隔与进度 */
@@ -146,9 +143,9 @@ export function resetProgress(card) {
 export const toggleBack = () => { showBack = !showBack; };
 
 export function next() { 
-  const list = filteredCards(); 
-  if (list.length > 0) {
-    idx = (idx + 1) % list.length; 
+  if (cards.length > 0) {
+    idx = (idx + 1) % cards.length;
+    console.log('next() called, new idx:', idx, 'total:', cards.length);
   }
   showBack = false; 
 }
@@ -161,21 +158,23 @@ export function shuffle() {
 
 /* 当前视图数据 */
 export function getStatus() { 
-  const list = filteredCards(); 
+  const current = getCurrentCard();
   return { 
-    total: list.length, 
+    total: cards.length, 
     index: idx, 
     todayCount: dueList().length, 
     showBack, 
-    currentModule 
+    currentModule: current ? current.module : '' // 显示当前卡片的模块
   }; 
 }
 
 export function getCurrentCard() { 
-  const list = filteredCards(); 
-  if (list.length === 0) return null;
-  if (idx < 0 || idx >= list.length) return null;
-  return list[idx]; 
+  if (cards.length === 0) return null;
+  if (idx < 0 || idx >= cards.length) {
+    console.warn('idx out of range:', idx, 'max:', cards.length);
+    return null;
+  }
+  return cards[idx]; 
 }
 
 export const extractMyAi = back => {

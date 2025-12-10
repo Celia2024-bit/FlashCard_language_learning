@@ -1,4 +1,4 @@
-import { PLAN, loadCards, filteredCards, setModule, getModules, getStatus, getCurrentCard, dueList, completeReview, resetProgress, toggleBack, next, shuffle, fmtDate, escapeHtml, extractMyAi, buildDiffHTML } from './app.js';
+import { PLAN, loadCards, jumpToModule, getModules, getStatus, getCurrentCard, dueList, completeReview, resetProgress, toggleBack, next, shuffle, fmtDate, escapeHtml, extractMyAi, buildDiffHTML } from './app.js';
 
 const statusEl = document.getElementById('status');
 const errEl    = document.getElementById('error');
@@ -42,7 +42,7 @@ function fillModuleOptions(){
   
   moduleSelect.onchange = () => { 
     const m = moduleSelect.value || ''; 
-    setModule(m); 
+    jumpToModule(m);  
     moduleLabel.innerText = '模块：' + (m || '全部'); 
     render(true); 
   };
@@ -89,7 +89,6 @@ btnShow.onclick = () => {
 btnNext.onclick = () => { 
   console.log('=== 点击下一张 ===');
   console.log('点击前 status:', getStatus());
-  console.log('点击前 filteredCards 长度:', filteredCards().length);
   
   next(); 
   
