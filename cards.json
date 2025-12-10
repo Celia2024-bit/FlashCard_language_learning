@@ -43,7 +43,7 @@
     },
     "back": {
       "Mysentence": "I was cooking a complicated dinner when my boss sends a urgent message , and I am like , \"are you kidding \"",
-      "Corrected": "I was cooking a complicated dinner when \nmy boss sends an urgent text , \nand I am Iike , \"are you kidding \"",
+      "Corrected": "I was cooking a complicated dinner when \nmy boss sends an urgent text , \nand I am like , \"are you kidding \"",
       "Explain": "text 更加口语",
       "Fluency": "1",
       "Createdtime": "12/1/2025"
