@@ -1,0 +1,17 @@
+[
+  {
+    "front": {
+      "Original": "Due to inundated by messages",
+      "Explain": "语法不对：due to 后接名词；inundated with 后接内容。应改为：I was inundated with messages。",
+      "Usage": ""
+    },
+    "back": {
+      "usage": "inundated with + 内容；due to + 名词。",
+      "My sentence": "I was inundated with information about the decoration and I was lost about the painting.",
+      "AI correction": "I was inundated with messages, and I was lost about the painting.",
+      "Explain": ""
+    },
+    "key_module": "I was inundated with A",
+    "module": "usage"
+  }
+]

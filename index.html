@@ -1,0 +1,65 @@
+
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Flashcards · 3‑6‑12</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <header class="page-header">
+    <h1>📚 Flashcards</h1>
+    <p class="subtitle">只翻面，不测试 · 固定间隔：3 → 6 → 12</p>
+  </header>
+
+  <section class="toolbar">
+    <div class="pill">计划：3 → 6 → 12（之后默认 12）</div>
+    <label class="pill pill-select">
+      模块：
+      <select id="moduleSelect">
+        <option value="">全部</option>
+      </select>
+    </label>
+    <div id="moduleLabel" class="pill">模块：全部</div>
+  </section>
+
+  <section id="statusBar" class="status-row">
+    <div id="status" class="status">正在加载…</div>
+  </section>
+
+  <main class="layout">
+    <article id="card" class="card">
+      <pre id="cardText"></pre>
+    </article>
+
+    <nav class="controls">
+      <button id="show" class="btn">显示背面</button>
+      <button id="next" class="btn btn-primary">下一张</button>
+      <button id="shuffle" class="btn">随机</button>
+      <button id="done" class="btn btn-primary">完成此次复习</button>
+      <button id="reset" class="btn btn-warn">重置进度</button>
+    </nav>
+
+    <section class="diff-wrap">
+      <div class="diff-legend">
+        <span class="tag added">新增</span>
+        <span class="tag removed">删除</span>
+        <span class="tag case">大小写差异</span>
+      </div>
+      <div id="diffStatus" class="muted">点击「显示差异」比较 My sentence 与 AI correction。</div>
+      <div class="diff-box"><div id="diffLine" class="diff-line"></div></div>
+      <div class="diff-controls">
+        <button id="btnShowDiff" class="btn">显示差异</button>
+        <button id="btnClearDiff" class="btn">清空差异</button>
+        <button id="btnCopyDiff" class="btn">复制差异结果</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <small>提示：通过本地 HTTP 服务访问（例如 <code>python -m http.server 8080</code>）。</small>
+  </footer>
+  <script type="module" src="./ui.js"></script>
+</body>
+</html>
