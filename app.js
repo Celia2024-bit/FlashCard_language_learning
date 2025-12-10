@@ -1,5 +1,4 @@
-
-// app.js —— 业务逻辑：加载/规范化/间隔/持久化/diff（无调试日志）
+// app.js —— 业务逻辑：加载/规范化/间隔/持久化/diff（最终修正版）
 export const PLAN = [3, 6, 12];
 const KEY  = 'flashcards_state_v1';
 
@@ -12,7 +11,8 @@ let currentModule = '';
 export const addDays  = (d, n) => { const t = new Date(d); t.setDate(t.getDate() + n); return t; };
 export const stripTime= d => { const t = new Date(d); t.setHours(0,0,0,0); return t; };
 export const fmtDate  = iso => { const d = new Date(iso); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
-export const escapeHtml = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+// 修正 1：处理换行符 \n 为 <br>
+export const escapeHtml = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g, '<br>');
 export const hashId   = s => { let h=0; for (let i=0;i<s.length;i++) h=(h<<5)-h+s.charCodeAt(i), h|=0; return 'id_'+(h>>>0).toString(16); };
 
 /* 从字符串反面解析 My/AI */
@@ -22,79 +22,72 @@ function extractMyAiStr(backText) {
   for (const raw of lines) {
     const line = raw.replace(/^📝\s*/,'').replace(/^✅\s*/,'').trim();
     if (/^my sentence\s*:/i.test(line)) my = line.replace(/^my sentence\s*:/i, '').trim();
-    else if (/^(ai correction|ai sentence)\s*:/i.test(line)) ai = line.replace(/^(ai correction|ai sentence)\s*:/i, '').trim();
+    else if (/^(ai correction|ai sentence)\s*:/i.test(line)) ai = line.replace(/^(ai correction|ai correction)\s*:/i, '').trim();
   }
   return { my, ai };
 }
 
-/* 替换 app.js 中的 normalizeCard 函数 */
-export function normalizeCard(raw, i) {
-    // 1. FRONT FIELDS 字段提取 (已修正，兼容新的大小写键名)
-    const original = raw.front.Original || raw.front.original || '';
-    const explain = raw.front.Explain || raw.front.explain || '';
-    const usage = raw.front.Usage || raw.front.usage || '';
-    const extended = raw.front.Extended || raw.front.extended || '';
+/* 规范化一张卡 */
+function normalizeCard(raw, i) {
+  const module = raw.module || raw.key_module || '';
+  
+  // 1. FRONT FIELDS 字段提取
+  const original = raw.front.Original || raw.front.original || '';
+  const explain  = raw.front.Explain  || raw.front.explain  || '';
+  const usage    = raw.front.Usage    || raw.front.usage    || '';
+  const extended = raw.front.Extended || raw.front.extended || ''; 
+  const ton      = raw.front.Tone     || raw.front.Tone || ''; 
+  
+  // 2. BACK FIELDS 字段提取
+  const backExplain = raw.back.Explain || raw.back.explain || '';
+  const fluency = raw.back.Fluency || raw.back.fluency || ''; 
+  const backMy = raw.back.Mysentence || raw.back.Mysentence || ''; 
+  const backAI = raw.back.Corrected || raw.back.Corrected || ''; 
+  
+  // 3. 构造 frontText (卡片正面显示内容)
+  const parts = [];
+  if (module) parts.push(`🔹 ${module}`);
+  if (ton) parts.push(`\n📢 Tone/Conditon: ${ton}`);
+  if (original) parts.push(`\n❌ Original: ${original}`); 
+  if (explain)  parts.push(`\n💡 Explain: ${explain}`);  
+  if (usage)    parts.push(`\n📘 Usage: ${usage}`); 
+  if (extended) parts.push(`\n\n✨ Extended: ${extended}`);   
+  
+  const frontText = parts.join('').trim();
+  
+  // 4. 构造 backText (卡片背面显示内容)
+  const lines = [];
+  if (fluency) lines.push(`⭐ Fluency: ${fluency}`); 
+  if (backMy)  lines.push(`📝 My sentence: ${backMy}`);
+  if (backAI)  lines.push(`✅ AI correction: ${backAI}`);
+  if (backExplain) lines.push(`💡 Explain: ${backExplain}`);
+  
+  const backText = lines.join('\n').trim();
 
-    // *** 修正 ToneCondition 字段查找，兼容新键名 ***
-    // 新的 cards.json 键名是 "ToneCondition" (无下划线)
-    const toneCondition = raw.front.ToneCondition || raw.front.Tone_Condition || raw.front.tone_condition || ''; 
+  // 5. 元数据
+  const key_module = raw.key_module || '';
+  const createdTime = raw.created_time || raw.createdTime || raw.CreatedTime || raw.dueDate || null; 
 
-    // 2. BACK FIELDS 字段提取 (已修正，兼容新的大小写键名)
-    const backExplain = raw.back.Explain || raw.back.explain || '';
-    const fluency = raw.back.Fluency || raw.back.fluency || '';
-
-    // *** 修正 My sentence 字段查找，兼容新键名 "Mysentence" ***
-    const backMy = raw.back['My sentence'] || raw.back.Mysentence || raw.back.my || raw.back.my_sentence || '';
-
-    // *** 修正 AI correction 字段查找，兼容新键名 "Corrected" ***
-    const backAI = raw.back['AI correction'] || raw.back.Corrected || raw.back.ai || raw.back.ai_correction || '';
-
-
-    // 3. METADATA
-    const key_module = raw.key_module || '';
-    const module_name = raw.module || key_module || 'default';
-
-
-    // 4. 构建 frontText (卡片正面显示内容)
-    const parts = [];
-    if (key_module) parts.push(`🔹 ${key_module}`);
-    if (toneCondition) parts.push(`📢 Tone/Context: ${toneCondition}`);
-    if (original) parts.push(`\n❌ Original: ${original}`);
-    if (explain) parts.push(`💡 Explain: ${explain}`);
-    if (usage) parts.push(`📘 Usage: ${usage}`);
-    if (extended) parts.push(`✨ Extended: ${extended}`);
-
-    
-    const frontText = parts.join('\n').trim();
-
-
-    // 5. 构建 backText (卡片背面显示内容)
-    const backParts = [];
-    if (backMy) backParts.push(`📝 My sentence: ${backMy}`);
-    if (backAI) backParts.push(`✅ AI correction: ${backAI}`);
-    if (backExplain) backParts.push(`💡 Explain: ${backExplain}`);
-    if (fluency) backParts.push(`⭐ Fluency: ${fluency}`);
-
-    const backText = backParts.join('\n').trim();
-
-
-    // 6. 返回规范化后的卡片对象
-    return {
-        // 假设您的 app.js 拥有 hashId 和 fmtDate 等工具函数
-        id: raw.id || hashId(frontText + backText),
-        frontText,
-        backText,
-        // ... (其他状态字段，如 reviewState, nextReview, step 等)
-        key_module,
-        module: module_name,
-        created: raw.created || fmtDate(raw.created_time) // 兼容 created_time 字段
-    };
+  // 6. 返回规范化后的卡片对象
+  const id = hashId((frontText || JSON.stringify(raw)) + (module || '') + i);
+  return { 
+    id, 
+    module: raw.module || key_module || 'default', 
+    frontText, 
+    backText, 
+    backMy, 
+    backAI, 
+    step:0, 
+    lastReviewed:null, 
+    dueDate:null,
+    createdTime 
+  };
 }
 
-/* 加载与持久化 */
+/* 加载与持久化 (保持不变) */
 export async function loadCards() {
-  const resp = await fetch('./cards.json');           // 加相对路径，避免路径问题
-  const json = await resp.json();                     // 抛错由 ui.js 捕获并提示
+  const resp = await fetch('./cards.json');           
+  const json = await resp.json();                     
   const state = JSON.parse(localStorage.getItem(KEY) || '{}');
 
   cards = json.map((raw, i) => {
@@ -122,7 +115,7 @@ function persist(card) {
   localStorage.setItem(KEY, JSON.stringify(state));
 }
 
-/* 筛选与队列 */
+/* 筛选与队列 (保持不变) */
 export const setModule   = m => { currentModule = m || ''; idx = 0; showBack = false; };
 export const getModules  = () => Array.from(new Set(cards.map(c => c.module).filter(Boolean))).sort();
 export const filteredCards = () => currentModule ? cards.filter(c => c.module === currentModule) : cards;
@@ -132,61 +125,106 @@ export const dueList = (date = new Date()) => {
   return filteredCards().filter(c => (!c.dueDate) || stripTime(new Date(c.dueDate)) <= today);
 };
 
-/* 间隔与进度 */
+/* 间隔与进度 (保持不变) */
 export function completeReview(card) {
   const now = new Date();
   const nextStep = Math.min((card.step || 0) + 1, PLAN.length);
-  const gapDays  = PLAN[(nextStep - 1)] || 12;   // 超过后固定 12
+  const gapDays  = PLAN[(nextStep - 1)] || 12;   
   const nextDue  = addDays(now, gapDays);
   card.step = nextStep; card.lastReviewed = now.toISOString(); card.dueDate = nextDue.toISOString();
   persist(card);
 }
 export function resetProgress(card) { card.step = 0; card.lastReviewed = null; card.dueDate = null; persist(card); }
 
-/* 导航 */
+/* 导航 (保持不变) */
 export const toggleBack = () => { showBack = !showBack; };
 export const next       = () => { const list = filteredCards(); idx = (idx + 1) % list.length; showBack = false; };
 export const shuffle    = () => { cards.sort(() => Math.random() - 0.5); idx = 0; showBack = false; };
 
-/* 当前视图数据 */
+/* 当前视图数据 (保持不变) */
 export const getStatus      = () => { const list = filteredCards(); return { total:list.length, index:idx, todayCount: dueList().length, showBack, currentModule }; };
 export const getCurrentCard = () => { const list = filteredCards(); return list.length ? list[idx] : null; };
 
-/* Diff */
 export const extractMyAi = back => {
   if (back && typeof back === 'object') {
-    const my = back['My sentence'] || back.my || back.my_sentence || '';
-    const ai = back['AI correction'] || back.ai || back.ai_sentence || back.ai_correction || '';
+    // 兼容新的 Mysentence 和 Corrected 键名
+    const my = back['My sentence'] || back.MySentence || back.my || back.my_sentence || '';
+    const ai = back['AI correction'] || back.Corrected || back.ai || back.ai_sentence || back.ai_correction || '';
     return { my, ai };
   }
   return extractMyAiStr(back || '');
 };
-export const tokenizeWords = s => (s ? (s.match(/\w+|[^\s\w]+/g) || []) : []);
-export function lcsAlign(aTokens, bTokens) {
-  const m = aTokens.length, n = bTokens.length;
-  const dp = Array.from({length:m+1}, () => Array(n+1).fill(0));
-  for (let i=1;i<=m;i++) for (let j=1;j<=n;j++)
-    dp[i][j] = (aTokens[i-1].toLowerCase() === bTokens[j-1].toLowerCase()) ? dp[i-1][j-1]+1 : Math.max(dp[i-1][j], dp[i][j-1]);
-  let i=m, j=n; const pairs=[];
-  while (i>0 && j>0) {
-    if (aTokens[i-1].toLowerCase() === bTokens[j-1].toLowerCase()) { pairs.push([i-1,j-1]); i--; j--; }
-    else if (dp[i-1][j] >= dp[i][j-1]) i--; else j--;
-  }
-  return pairs.reverse();
-}
+
+/* Diff - 修正 2：修复 Diff 库作用域问题，并使用字符级比较 */
 export function buildDiffHTML(myText, aiText) {
-  const a = tokenizeWords(myText), b = tokenizeWords(aiText), pairs = lcsAlign(a, b);
-  let ai=0, bi=0, html=''; const wrap = (cls,t)=>`<span class="${cls}">${escapeHtml(t)}</span>`; const plain = t=>escapeHtml(t);
-  for (const [aiMatch, biMatch] of pairs) {
-    while (ai<aiMatch) { html += wrap('w-rem', a[ai])+' '; ai++; }
-    while (bi<biMatch) { html += wrap('w-add', b[bi])+' '; bi++; }
-    const at=a[aiMatch], bt=b[biMatch];
-    html += (at===bt) ? (plain(bt)+' ')
-          : (at.toLowerCase()===bt.toLowerCase()) ? (wrap('w-case', bt)+' ')
-          : (wrap('w-add', bt)+' ');
-    ai=aiMatch+1; bi=biMatch+1;
+  // 核心修复：显式检查并使用 window 上的全局对象
+  const DMP = (typeof diff_match_patch !== 'undefined' && diff_match_patch) || window.diff_match_patch;
+  
+  if (!DMP) {
+    // 找不到库，直接返回 AI 文本 (确保换行符被替换)
+    return escapeHtml(aiText) || 'Diff library not loaded.';
   }
-  while (ai<a.length) { html += wrap('w-rem', a[ai])+' '; ai++; }
-  while (bi<b.length) { html += wrap('w-add', b[bi])+' '; bi++; }
-  return html.trim();
+  
+  // 清理输入文本
+  const myClean = String(myText || '').trim();
+  const aiClean = String(aiText || '').trim();
+  
+  if (!myClean || !aiClean) {
+      // 如果没有比较数据，返回 AI 文本或提示
+      return escapeHtml(aiText) || 'No comparison data available.';
+  }
+
+  const dmp = new DMP();
+  
+  // 进行字符级 diff
+  let diffs = dmp.diff_main(myClean, aiClean);
+  dmp.diff_cleanupSemantic(diffs); 
+
+  let html = '';
+  const original = myClean; 
+  let originalIndex = 0; 
+  
+  // 检查字符是否是纯空格或标点
+  const isPunctuationOrSpace = char => char.match(/^[\s,.!?;:'"()\[\]@#$%^&*-]$/);
+  
+  diffs.forEach(([type, text]) => {
+    for (let i = 0; i < text.length; i++) {
+        const char = text[i];
+        
+        // 使用 app.js 的 escapeHtml，它已处理 \n -> <br>
+        const escapedChar = escapeHtml(char); 
+        
+        // 忽略纯标点/空格，不应用 diff class
+        if (isPunctuationOrSpace(char) && type === 0) {
+             html += escapedChar;
+             originalIndex++;
+             continue;
+        }
+
+        if (type === 0) {
+            // 相同文本: 检查大小写差异
+            const originalChar = original[originalIndex]; 
+            
+            if (originalChar && 
+                originalChar.toLowerCase() === char.toLowerCase() && 
+                originalChar !== char) {
+                html += `<span class="w-case">${escapedChar}</span>`; 
+            } else {
+                html += escapedChar; 
+            }
+            originalIndex++;
+
+        } else if (type === 1) {
+            // 添加文本
+            html += `<span class="w-add">${escapedChar}</span>`; 
+
+        } else if (type === -1) {
+            // 移除文本
+            html += `<span class="w-rem">${escapedChar}</span>`; 
+            originalIndex++;
+        }
+    }
+  });
+
+  return html.trim() || 'No differences';
 }
