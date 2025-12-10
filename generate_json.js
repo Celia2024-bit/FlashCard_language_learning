@@ -64,12 +64,12 @@ csv({
 
 
         // 处理元数据并规范化字段名
-        const module_name = metadata['module'] || key_module || 'default';
+        const key_module = metadata['key_module'];
         
         return {
             front: finalFront,
             back: finalBack,
-            'module': module_name
+            'module': key_module,
         };
     });
     

@@ -8,13 +8,13 @@
       "Extended": "I am lost about Y ,后面可以跟这样用法"
     },
     "back": {
-      "Mysentence": "I was inundated with information about the decoration and I was lost about the painting  ",
+      "Mysentence": "I was inundated with information about the \ndecoration and I was lost about the painting  ",
       "Corrected": "",
       "Explain": "",
       "Fluency": "1",
       "Createdtime": "12/1/2025"
     },
-    "module": "I was inundated with A  "
+    "module": "I was inundated with A  \n"
   },
   {
     "front": {
@@ -43,7 +43,7 @@
     },
     "back": {
       "Mysentence": "I was cooking a complicated dinner when my boss sends a urgent message , and I am like , \"are you kidding \"",
-      "Corrected":  "I was cooking a complicated dinner when my boss sends an urgent text, and I am Iike , \"are you kidding \"",
+      "Corrected": "I was cooking a complicated dinner when \nmy boss sends an urgent text , \nand I am Iike , \"are you kidding \"",
       "Explain": "text 更加口语",
       "Fluency": "1",
       "Createdtime": "12/1/2025"
@@ -59,7 +59,7 @@
       "Extended": ""
     },
     "back": {
-      "Mysentence": "I haven't gone  to the cinema in way too long . \n\n Has you talked to your friends in way too long  ? \n ",
+      "Mysentence": "I haven't gone  to the cinema in way too long .\nHas you talked to your friends in way too long  ? ",
       "Corrected": "I haven't been   to the cinema in way too long .   \n\nHas you talked to your friends in a long time ? \n",
       "Explain": "Have been to 去了回来了， have gone to 去了，还在那里；in way too long 只用于否定句",
       "Fluency": "1",
