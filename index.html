@@ -57,9 +57,18 @@
     </section>
   </main>
 
-  <footer class="footer">
-    <small>提示：通过本地 HTTP 服务访问（例如 <code>python -m http.server 8080</code>）。</small>
-  </footer>
-  <script type="module" src="./ui.js"></script>
-</body>
-</html>
+    <footer class="footer">
+        </footer>
+
+      <script src="https://cdn.jsdelivr.net/npm/diff-match-patch@1.0.5/index.min.js"></script> 
+      
+      <script>
+          // 确保全局变量 diff_match_patch 存在，并挂载到 window 上
+          if (typeof diff_match_patch !== 'undefined') {
+              window.diff_match_patch = diff_match_patch;
+          }
+      </script>
+
+      <script type="module" src="./ui.js"></script>
+    </body>
+    </html>

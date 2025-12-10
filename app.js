@@ -12,8 +12,8 @@ export const addDays  = (d, n) => { const t = new Date(d); t.setDate(t.getDate()
 export const stripTime= d => { const t = new Date(d); t.setHours(0,0,0,0); return t; };
 export const fmtDate  = iso => { const d = new Date(iso); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
 // 修正 1：处理换行符 \n 为 <br>
-export const escapeHtml = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g, '<br>');
 export const hashId   = s => { let h=0; for (let i=0;i<s.length;i++) h=(h<<5)-h+s.charCodeAt(i), h|=0; return 'id_'+(h>>>0).toString(16); };
+export const escapeHtml = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g, '<br>');
 
 /* 从字符串反面解析 My/AI */
 function extractMyAiStr(backText) {
@@ -60,7 +60,7 @@ function normalizeCard(raw, i) {
   if (fluency) lines.push(`⭐ Fluency: ${fluency}`); 
   if (backMy)  lines.push(`📝 My sentence: ${backMy}`);
   if (backAI)  lines.push(`✅ AI correction: ${backAI}`);
-  if (backExplain) lines.push(`💡 Explain: ${backExplain}`);
+    if (backExplain) lines.push(`💡 Explain: ${backExplain}`);
   
   const backText = lines.join('\n').trim();
 
@@ -155,28 +155,27 @@ export const extractMyAi = back => {
   return extractMyAiStr(back || '');
 };
 
-/* Diff - 修正 2：修复 Diff 库作用域问题，并使用字符级比较 */
 export function buildDiffHTML(myText, aiText) {
-  // 核心修复：显式检查并使用 window 上的全局对象
-  const DMP = (typeof diff_match_patch !== 'undefined' && diff_match_patch) || window.diff_match_patch;
+  // 核心修复：直接从 window 获取，避免模块作用域问题
+  const DMP = window.diff_match_patch;
   
   if (!DMP) {
-    // 找不到库，直接返回 AI 文本 (确保换行符被替换)
+    // 此时仍未找到，可能是 index.html 链接或加载顺序错误
+    console.error("❌ 错误：diff_match_patch 库未找到。请检查 index.html 中是否已正确引入该库。");
     return escapeHtml(aiText) || 'Diff library not loaded.';
   }
   
-  // 清理输入文本
+  // 1. 清理输入文本
   const myClean = String(myText || '').trim();
   const aiClean = String(aiText || '').trim();
-  
+
   if (!myClean || !aiClean) {
-      // 如果没有比较数据，返回 AI 文本或提示
       return escapeHtml(aiText) || 'No comparison data available.';
   }
 
   const dmp = new DMP();
   
-  // 进行字符级 diff
+  // 2. 进行字符级 diff
   let diffs = dmp.diff_main(myClean, aiClean);
   dmp.diff_cleanupSemantic(diffs); 
 

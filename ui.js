@@ -20,9 +20,12 @@ const btnCopyDiff = document.getElementById('btnCopyDiff');
 
 (async function init(){
   try {
-    await loadCards();
+    // 不再需要动态 import('./diff-match-patch.js')
+    
+    await loadCards(); // 启动应用逻辑
     fillModuleOptions();
     render(true);
+    
   } catch (e) {
     errEl.style.display = 'block';
     errEl.textContent = '加载错误：' + e.message + '（请确认 cards.json 与本页同目录，并通过 http 服务访问）';
