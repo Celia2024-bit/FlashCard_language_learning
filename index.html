@@ -59,14 +59,16 @@
 
     <footer class="footer">
         </footer>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/diff-match-patch/1.0.5/diff_match_patch.js"></script>
+      <script src="https://cdn.jsdelivr.net/npm/diff-match-patch@1.0.5/index.js"></script>
       
       <script>
-          // 确保全局变量 diff_match_patch 存在，并挂载到 window 上
-          if (typeof diff_match_patch !== 'undefined') {
-              window.diff_match_patch = diff_match_patch;
-          }
-      </script>
+      // diff_match_patch 库会创建全局构造函数，直接赋值给 window
+      if (typeof diff_match_patch !== 'undefined') {
+        window.diff_match_patch = diff_match_patch;
+      } else {
+        console.error('❌ diff_match_patch 库加载失败！');
+      }
+    </script>
 
       <script type="module" src="./ui.js"></script>
     </body>

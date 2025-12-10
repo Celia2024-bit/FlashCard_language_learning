@@ -177,3 +177,5 @@ btnCopyDiff.onclick = async () => {
     diffStatus.innerText = '复制失败：' + e.message; 
   } 
 };
+
+window.debugGetCurrentCard = getCurrentCard;
