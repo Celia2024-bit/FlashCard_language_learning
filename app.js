@@ -27,54 +27,68 @@ function extractMyAiStr(backText) {
   return { my, ai };
 }
 
-// app.js, 18行开始
-/* 规范化一张卡 */
-function normalizeCard(raw, i) {
-  const module = raw.module || raw.key_module || '';
-  // front
-  let frontText = '';
-  if (typeof raw.front === 'string') {
-    frontText = raw.front.trim();
-  } else if (raw.front && typeof raw.front === 'object') {
+/* 替换 app.js 中的 normalizeCard 函数 */
+export function normalizeCard(raw, i) {
+    // 1. FRONT FIELDS 字段提取 (已修正，兼容新的大小写键名)
     const original = raw.front.Original || raw.front.original || '';
-    const explain  = raw.front.Explain  || raw.front.explain  || '';
-    const usage    = raw.front.Usage    || raw.front.usage    || ''; // <--- 新增
-    const title    = raw.key_module || original || '';
-    const parts = [];
-    if (title)    parts.push(`🔹 ${title}`);
-    if (original) parts.push(`\n\n❌ Original: ${original}`); // <--- 新增图标
-    if (explain)  parts.push(`\n💡 Explain: ${explain}`);  // <--- 新增图标
-    if (usage)    parts.push(`\n📘 Usage: ${usage}`);      // <--- 新增图标
-    frontText = parts.join('').trim();
-  } else {
-    const original = raw.Original || '';
-    const explain  = raw.Explain  || '';
-    const title    = raw.key_module || original || '';
-    if (original || explain || title) {
-      frontText = (`🔹 ${title}\n\nOriginal: ${original}\nExplain: ${explain}`).trim();
-    }
-  }
-  // back + My/AI
-  let backText = '';
-  let backMy='', backAI='';
-  if (typeof raw.back === 'string') {
-    backText = raw.back.trim();
-    ({ my: backMy, ai: backAI } = extractMyAiStr(backText));
-  } else if (raw.back && typeof raw.back === 'object') {
-    const usage   = raw.back.usage || raw.back.Usage || '';
-    const explain = raw.back.Explain || raw.back.explain || ''; // <--- 新增
-    backMy = raw.back['My sentence'] || raw.back.my || raw.back.my_sentence || '';
-    backAI = raw.back['AI correction'] || raw.back.ai || raw.back.ai_sentence || raw.back.ai_correction || '';
-    const lines = [];
-    if (usage)   lines.push(`📘 usage: ${usage}`); // <--- 新增图标
-    if (explain) lines.push(`💡 Explain: ${explain}`); // <--- 新增图标
-    if (backMy)  lines.push(`📝 My sentence: ${backMy}`);
-    if (backAI)  lines.push(`✅ AI correction: ${backAI}`);
-    backText = lines.join('\n').trim();
-  }
+    const explain = raw.front.Explain || raw.front.explain || '';
+    const usage = raw.front.Usage || raw.front.usage || '';
+    const extended = raw.front.Extended || raw.front.extended || '';
 
-  const id = hashId((frontText || JSON.stringify(raw)) + (module || '') + i);
-  return { id, module, frontText, backText, backMy, backAI, step:0, lastReviewed:null, dueDate:null };
+    // *** 修正 ToneCondition 字段查找，兼容新键名 ***
+    // 新的 cards.json 键名是 "ToneCondition" (无下划线)
+    const toneCondition = raw.front.ToneCondition || raw.front.Tone_Condition || raw.front.tone_condition || ''; 
+
+    // 2. BACK FIELDS 字段提取 (已修正，兼容新的大小写键名)
+    const backExplain = raw.back.Explain || raw.back.explain || '';
+    const fluency = raw.back.Fluency || raw.back.fluency || '';
+
+    // *** 修正 My sentence 字段查找，兼容新键名 "Mysentence" ***
+    const backMy = raw.back['My sentence'] || raw.back.Mysentence || raw.back.my || raw.back.my_sentence || '';
+
+    // *** 修正 AI correction 字段查找，兼容新键名 "Corrected" ***
+    const backAI = raw.back['AI correction'] || raw.back.Corrected || raw.back.ai || raw.back.ai_correction || '';
+
+
+    // 3. METADATA
+    const key_module = raw.key_module || '';
+    const module_name = raw.module || key_module || 'default';
+
+
+    // 4. 构建 frontText (卡片正面显示内容)
+    const parts = [];
+    if (key_module) parts.push(`🔹 ${key_module}`);
+    if (toneCondition) parts.push(`📢 Tone/Context: ${toneCondition}`);
+    if (original) parts.push(`\n❌ Original: ${original}`);
+    if (explain) parts.push(`💡 Explain: ${explain}`);
+    if (usage) parts.push(`📘 Usage: ${usage}`);
+    if (extended) parts.push(`✨ Extended: ${extended}`);
+
+    
+    const frontText = parts.join('\n').trim();
+
+
+    // 5. 构建 backText (卡片背面显示内容)
+    const backParts = [];
+    if (backMy) backParts.push(`📝 My sentence: ${backMy}`);
+    if (backAI) backParts.push(`✅ AI correction: ${backAI}`);
+    if (backExplain) backParts.push(`💡 Explain: ${backExplain}`);
+    if (fluency) backParts.push(`⭐ Fluency: ${fluency}`);
+
+    const backText = backParts.join('\n').trim();
+
+
+    // 6. 返回规范化后的卡片对象
+    return {
+        // 假设您的 app.js 拥有 hashId 和 fmtDate 等工具函数
+        id: raw.id || hashId(frontText + backText),
+        frontText,
+        backText,
+        // ... (其他状态字段，如 reviewState, nextReview, step 等)
+        key_module,
+        module: module_name,
+        created: raw.created || fmtDate(raw.created_time) // 兼容 created_time 字段
+    };
 }
 
 /* 加载与持久化 */
