@@ -5,12 +5,7 @@ let cards = [];
 let idx = 0;
 let showBack = true;
 
-/* 工具 */
-export const addDays  = (d, n) => { const t = new Date(d); t.setDate(t.getDate() + n); return t; };
-export const stripTime= d => { const t = new Date(d); t.setHours(0,0,0,0); return t; };
-export const fmtDate  = iso => { const d = new Date(iso); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; };
-export const hashId   = s => { let h=0; for (let i=0;i<s.length;i++) h=(h<<5)-h+s.charCodeAt(i), h|=0; return 'id_'+(h>>>0).toString(16); };
-
+import { addDays, stripTime, hashId } from './util.js';
 
 /* 规范化一张卡 */
 function normalizeCard(raw, i) {

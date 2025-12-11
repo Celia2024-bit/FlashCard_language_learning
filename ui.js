@@ -4,7 +4,8 @@ import {
   loadCards, jumpToCard, getTitles, getStatus, getCurrentCard,
   toggleBack, next, prev, shuffle
 } from './app.js';
-import { escapeHtml, buildDiffHTML } from './diff.js';
+import { buildDiffHTML } from './diff.js';
+import { escapeHtml } from './util.js';
 
 // DOM 元素引用
 const statusEl     = document.getElementById('status');
