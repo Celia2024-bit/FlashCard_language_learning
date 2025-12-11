@@ -1,7 +1,7 @@
 // ui.js —— 最终版本 (包含 prev 逻辑)
 
 // 🚨 导入 prev 函数
-import { PLAN, loadCards, jumpToCard, getModules, getStatus, getCurrentCard, dueList, completeReview, resetProgress, toggleBack, next, prev, shuffle, fmtDate} from './app.js';
+import { PLAN, loadCards, jumpToCard, getTitles, getStatus, getCurrentCard, dueList, completeReview, resetProgress, toggleBack, next, prev, shuffle, fmtDate} from './app.js';
 import { escapeHtml, extractMyAi, buildDiffHTML } from './diff.js';
 
 // DOM 元素引用
@@ -37,7 +37,7 @@ const diffLine     = document.getElementById('diffLine');
 
 // ========== 模块选择处理 ==========
 function fillModuleOptions(){
-  const mods = getModules();
+  const mods = getTitles();
   while (moduleSelect.options.length > 1) moduleSelect.remove(1);
   
   mods.forEach(m => { 

@@ -15,7 +15,7 @@ export const hashId   = s => { let h=0; for (let i=0;i<s.length;i++) h=(h<<5)-h+
 
 /* 规范化一张卡 */
 function normalizeCard(raw, i) {
-  const module = (raw.module || 'default').trim();
+  const title = (raw.title || 'default').trim();
   
   const original = raw.front.Original || raw.front.original || '';
   const explain  = raw.front.Explain  || raw.front.explain  || '';
@@ -29,7 +29,7 @@ function normalizeCard(raw, i) {
   const backAI = raw.back.Corrected || raw.back.corrected || ''; 
   
   const parts = [];
-  if (module) parts.push(`🔹 ${module} ： ${ton}`);
+  if (title) parts.push(`🔹 ${title} ： ${ton}`);
  // if (ton) parts.push(`\n📢 Tone/Conditon: ${ton}`);
   if (original) parts.push(`\n📢 ${original}`); 
   if (explain)  parts.push(`\n💡${explain}`);  
@@ -48,10 +48,10 @@ function normalizeCard(raw, i) {
 
   const createdTime = raw.back.Createdtime || raw.back.createdtime || null; 
 
-  const id = hashId((frontText || JSON.stringify(raw)) + module + i);
+  const id = hashId((frontText || JSON.stringify(raw)) + title + i);
   return { 
     id, 
-    module, 
+    title, 
     frontText, 
     backText, 
     backMy, 
@@ -89,19 +89,19 @@ function persist(card) {
 }
 
 /* 快速跳转到某个模块的卡片 */
-export function jumpToCard(moduleName) { 
-  const targetModule = (moduleName || '').trim();
-  if (!targetModule) {
+export function jumpToCard(titleName) { 
+  const targettitle = (titleName || '').trim();
+  if (!targettitle) {
     idx = 0; // 跳到第一张
   } else {
-    const foundIdx = cards.findIndex(c => (c.module || '').trim() === targetModule);
+    const foundIdx = cards.findIndex(c => (c.title || '').trim() === targettitle);
     idx = foundIdx >= 0 ? foundIdx : 0;
   }
   showBack = false;
-  console.log('jumpToCard:', targetModule, 'idx:', idx);
+  console.log('jumpToCard:', targettitle, 'idx:', idx);
 }
 
-export const getModules = () => Array.from(new Set(cards.map(c => (c.module || '').trim()).filter(Boolean))).sort();
+export const getTitles = () => Array.from(new Set(cards.map(c => (c.title || '').trim()).filter(Boolean))).sort();
 
 export const dueList = (date = new Date()) => {
   const today = stripTime(date);
@@ -160,7 +160,7 @@ export function getStatus() {
     index: idx, 
     todayCount: dueList().length, 
     showBack, 
-    currentModule: current ? current.module : '' // 显示当前卡片的模块
+    currenttitle: current ? current.title : '' // 显示当前卡片的模块
   }; 
 }
 
