@@ -79,7 +79,6 @@ export async function loadCards() {
   });
 
   idx = 0;
-  showBack = true;
 }
 
 function persist(card) {
@@ -97,7 +96,6 @@ export function jumpToCard(titleName) {
     const foundIdx = cards.findIndex(c => (c.title || '').trim() === targettitle);
     idx = foundIdx >= 0 ? foundIdx : 0;
   }
-  showBack = true;
   console.log('jumpToCard:', targettitle, 'idx:', idx);
 }
 
@@ -135,7 +133,6 @@ export function next() {
     idx = (idx + 1) % cards.length;
     console.log('next() called, new idx:', idx, 'total:', cards.length);
   }
-  showBack = true; 
 }
 
 export const prev = () => { 
@@ -143,13 +140,11 @@ export const prev = () => {
         idx = (idx - 1 + cards.length) % cards.length;
         console.log('previous() called, new idx:', idx, 'total:', cards.length);
       }
-      showBack = true; 
 };
 
 export function shuffle() { 
   cards.sort(() => Math.random() - 0.5); 
   idx = 0; 
-  showBack = true; 
 }
 
 /* 当前视图数据 */
