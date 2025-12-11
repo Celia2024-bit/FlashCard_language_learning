@@ -1,5 +1,4 @@
 // app.js —— 简化版：移除模块过滤逻辑
-export const PLAN = [3, 6, 12];
 const KEY  = 'flashcards_state_v1';
 
 let cards = [];
@@ -30,7 +29,6 @@ function normalizeCard(raw, i) {
   
   const parts = [];
   if (title) parts.push(`🔹 ${title} ： ${ton}`);
- // if (ton) parts.push(`\n📢 Tone/Conditon: ${ton}`);
   if (original) parts.push(`\n📢 ${original}`); 
   if (explain)  parts.push(`\n💡${explain}`);  
   if (usage)    parts.push(`\n📘 ${usage}`); 
@@ -38,22 +36,13 @@ function normalizeCard(raw, i) {
   
   const frontText = parts.join('').trim();
   
-  const lines = [];
-  if (fluency) lines.push(`⭐ Fluency: ${fluency}`); 
-  if (backMy)  lines.push(`📝  ${backMy}`);
-  if (backAI)  lines.push(`✅  ${backAI}`);
- // if (backExplain) lines.push(`💡  ${backExplain}`);
-  
-  const backText = lines.join('\n').trim();
-
   const createdTime = raw.back.Createdtime || raw.back.createdtime || null; 
 
   const id = hashId((frontText || JSON.stringify(raw)) + title + i);
   return { 
     id, 
     title, 
-    frontText, 
-    backText, 
+    frontText,  
     backMy, 
     backAI, 
     backExplain,
@@ -82,12 +71,6 @@ export async function loadCards() {
   idx = 0;
 }
 
-function persist(card) {
-  const state = JSON.parse(localStorage.getItem(KEY) || '{}');
-  state[card.id] = { step: card.step, lastReviewed: card.lastReviewed, dueDate: card.dueDate };
-  localStorage.setItem(KEY, JSON.stringify(state));
-}
-
 /* 快速跳转到某个模块的卡片 */
 export function jumpToCard(titleName) { 
   const targettitle = (titleName || '').trim();
@@ -102,28 +85,13 @@ export function jumpToCard(titleName) {
 
 export const getTitles = () => Array.from(new Set(cards.map(c => (c.title || '').trim()).filter(Boolean))).sort();
 
-export const dueList = (date = new Date()) => {
-  const today = stripTime(date);
-  return cards.filter(c => (!c.dueDate) || stripTime(new Date(c.dueDate)) <= today);
-};
 
 /* 间隔与进度 */
 export function completeReview(card) {
   const now = new Date();
-  const nextStep = Math.min((card.step || 0) + 1, PLAN.length);
-  const gapDays  = PLAN[(nextStep - 1)] || 12;   
-  const nextDue  = addDays(now, gapDays);
-  card.step = nextStep; 
-  card.lastReviewed = now.toISOString(); 
-  card.dueDate = nextDue.toISOString();
-  persist(card);
 }
 
 export function resetProgress(card) { 
-  card.step = 0; 
-  card.lastReviewed = null; 
-  card.dueDate = null; 
-  persist(card); 
 }
 
 /* 导航 */
@@ -154,7 +122,6 @@ export function getStatus() {
   return { 
     total: cards.length, 
     index: idx, 
-    todayCount: dueList().length, 
     showBack, 
     currenttitle: current ? current.title : '' // 显示当前卡片的模块
   }; 
