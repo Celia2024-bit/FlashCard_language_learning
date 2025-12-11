@@ -78,8 +78,14 @@ function render(resetDiff = false){
   const metaStr = meta.length ? `\n\n（${meta.join(' · ')}）` : '';
   
   // 1. 卡片内容
-  const textRaw = (showBack ? (c.backText || c.back) : (c.frontText || c.front)) || ''; 
-  cardTextEl.innerHTML = escapeHtml(textRaw + metaStr); 
+
+    const frontStr = (c.frontText ?? c.front) ?? '';
+    const backStr  = (c.backText  ?? c.back)  ?? '';
+    const combined = showBack   
+        ? `${frontStr}\n\n---\n${backStr}${metaStr}`  // Show more：正面 + 分隔线 + 反面 + 元信息
+        : `${frontStr}${metaStr}`;                     // Show less：只有正面 + 元信息
+    cardTextEl.innerHTML = escapeHtml(combined);
+
   
   
   // 2. 自动显示 Diff 逻辑 (仅在显示背面时执行)
@@ -108,7 +114,7 @@ function render(resetDiff = false){
   }
   
   // 3. 按钮状态
-  btnShow.textContent = showBack ? '显示正面' : '显示背面';
+  btnShow.textContent = showBack ? 'Show less' : 'Show more';
   btnDone.style.display = showBack ? 'inline-block' : 'none';
   btnReset.style.display = showBack ? 'inline-block' : 'none';
 }
