@@ -150,6 +150,14 @@ export function next() {
   showBack = false; 
 }
 
+export const prev = () => { 
+    if (cards.length > 0) {
+        idx = (idx - 1 + cards.length) % cards.length;
+        console.log('previous() called, new idx:', idx, 'total:', cards.length);
+      }
+      showBack = false; 
+};
+
 export function shuffle() { 
   cards.sort(() => Math.random() - 0.5); 
   idx = 0; 

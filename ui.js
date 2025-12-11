@@ -1,6 +1,9 @@
-import { PLAN, loadCards, jumpToModule, getModules, getStatus, getCurrentCard, dueList, completeReview, resetProgress, toggleBack, next, shuffle, fmtDate, escapeHtml, extractMyAi, buildDiffHTML } from './app.js';
+// ui.js —— 最终版本 (包含 prev 逻辑)
 
-// DOM 元素引用 (已清理，只保留必要的元素)
+// 🚨 导入 prev 函数
+import { PLAN, loadCards, jumpToModule, getModules, getStatus, getCurrentCard, dueList, completeReview, resetProgress, toggleBack, next, prev, shuffle, fmtDate, escapeHtml, extractMyAi, buildDiffHTML } from './app.js';
+
+// DOM 元素引用
 const statusEl     = document.getElementById('status');
 const errEl        = document.getElementById('error');
 const cardTextEl   = document.getElementById('cardText');
@@ -8,24 +11,22 @@ const moduleSelect = document.getElementById('moduleSelect');
 const moduleLabel  = document.getElementById('moduleLabel');
 
 const btnShow      = document.getElementById('show');
+// 🚨 新增 DOM 引用
+const btnPrev      = document.getElementById('prev');
 const btnNext      = document.getElementById('next');
 const btnShuffle   = document.getElementById('shuffle');
 const btnDone      = document.getElementById('done');
 const btnReset     = document.getElementById('reset');
 
-// 核心修复：获取整个 Diff 容器和 Diff 结果行
-const diffWrap     = document.querySelector('.diff-wrap'); // 容器，用于控制显示/隐藏
-const diffLine     = document.getElementById('diffLine');   // Diff 结果
+const diffWrap     = document.querySelector('.diff-wrap');
+const diffLine     = document.getElementById('diffLine');
 
 // ========== 初始化逻辑 ==========
 (async function init(){
   try {
-    // 确保 Diff 库已在 index.html 中通过 CDN 或本地文件加载，并挂载到 window.diff_match_patch
-    
-    await loadCards(); // 加载卡片数据和本地进度
+    await loadCards(); 
     fillModuleOptions();
     render(true);
-    
   } catch (e) {
     errEl.style.display = 'block';
     errEl.textContent = '加载错误：' + e.message + '（请确认 cards.json 与本页同目录，并通过 http 服务访问）';
@@ -36,7 +37,6 @@ const diffLine     = document.getElementById('diffLine');   // Diff 结果
 // ========== 模块选择处理 ==========
 function fillModuleOptions(){
   const mods = getModules();
-  // 清空除 "全部" 之外的选项
   while (moduleSelect.options.length > 1) moduleSelect.remove(1);
   
   mods.forEach(m => { 
@@ -46,12 +46,11 @@ function fillModuleOptions(){
     moduleSelect.add(opt); 
   });
   
-  // 绑定模块切换事件
   moduleSelect.onchange = () => { 
     const m = moduleSelect.value || ''; 
-    jumpToModule(m);  // 调用 app.js 中的 jumpToModule (相当于 setModule/loadCards)
+    jumpToModule(m);  
     moduleLabel.innerText = '模块：' + (m || '全部'); 
-    render(true); // 重新渲染，并重置 Diff
+    render(true); 
   };
 }
 
@@ -65,7 +64,7 @@ function render(resetDiff = false){
     statusEl.innerText = '没有卡片（或筛选为空）。'; 
     cardTextEl.innerHTML = '';
     diffLine.innerHTML = '';
-    diffWrap.style.display = 'none'; // 列表为空时隐藏 Diff 框
+    if(diffWrap) diffWrap.style.display = 'none';
     return; 
   }
   
@@ -87,7 +86,6 @@ function render(resetDiff = false){
     let my = c.backMy || ''; 
     let ai = c.backAI || '';
     
-    // 兼容老数据结构
     if (!my || !ai){ 
       const fromStr = (c.backText || c.back || ''); 
       const parsed = extractMyAi(fromStr); 
@@ -95,20 +93,17 @@ function render(resetDiff = false){
       ai = ai || parsed.ai; 
     }
     
-    // 仅当 My sentence 和 AI correction 都存在时才显示 Diff
     if (my && ai) {
       diffLine.innerHTML = buildDiffHTML(my, ai);
     } else {
       diffLine.innerHTML = '<span style="color:#aaa;">（未找到 My sentence 或 AI correction，跳过差异显示）</span>';
     }
     
-    // 🚨 核心修复：显示 Diff 容器
-    diffWrap.style.display = 'block';
+    if(diffWrap) diffWrap.style.display = 'block';
     
   } else {
-    // 🚨 核心修复：隐藏 Diff 容器
     diffLine.innerHTML = '';
-    diffWrap.style.display = 'none';
+    if(diffWrap) diffWrap.style.display = 'none';
   }
   
   // 3. 按钮状态
@@ -117,11 +112,17 @@ function render(resetDiff = false){
   btnReset.style.display = showBack ? 'inline-block' : 'none';
 }
 
-// ========== 事件绑定 (已移除手动 Diff 按钮绑定) ==========
+// ========== 事件绑定 ==========
 
 btnShow.onclick = () => { 
   toggleBack(); 
-  render(true); // 翻面时重新渲染，触发 Diff 逻辑
+  render(true);
+};
+
+// 🚨 绑定上一张按钮事件
+btnPrev.onclick = () => { 
+  prev(); 
+  render(true); 
 };
 
 btnNext.onclick = () => { 
@@ -150,7 +151,5 @@ btnReset.onclick = () => {
   }
   render(true); 
 };
-
-// 移除手动 Diff 按钮的绑定
 
 window.debugGetCurrentCard = getCurrentCard;
