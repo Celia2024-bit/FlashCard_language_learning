@@ -1,10 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="zh">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Flashcards · 3‑6‑12</title>
+  <title>Flashcards</title>
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
@@ -14,16 +13,25 @@
 
   <section class="toolbar">
     <label class="pill pill-select">
-      卡片：
+      Module：
       <select id="moduleSelect">
         <option value="">全部</option>
       </select>
     </label>
-    <div id="moduleLabel" class="pill">卡片：全部</div>
+    <div id="moduleLabel" class="pill">Module: 全部</div>
+    
+    <label class="pill pill-select">
+      卡片：
+      <select id="cardSelect">
+        <option value="">全部</option>
+      </select>
+    </label>
+    <div id="cardLabel" class="pill">卡片：全部</div>
   </section>
 
   <section id="statusBar" class="status-row">
     <div id="status" class="status">正在加载…</div>
+    <div id="error" style="display:none; color:#ef4444; margin-top:8px;"></div>
   </section>
 
   <main class="layout">
@@ -35,30 +43,21 @@
       <button id="show" class="btn btn-primary">Show less</button>
       <button id="prev" class="btn btn-primary">上一张</button>  
       <button id="next" class="btn btn-primary">下一张</button>
+      <button id="back" class="btn" style="display:none;">← Back</button>
       <button id="shuffle" class="btn">随机</button>
-      <button id="done" class="btn btn-primary">完成此次复习</button>
-      <button id="reset" class="btn btn-warn">重置进度</button>
     </nav>
-    
-
-    <section class="diff-wrap">
-      <div class="diff-box"><div id="diffLine" class="diff-line"></div></div>
-    </section>
   </main>
 
-    <footer class="footer">
-        </footer>
-      <script src="https://cdn.jsdelivr.net/npm/diff-match-patch@1.0.5/index.js"></script>
-      
-      <script>
-      // diff_match_patch 库会创建全局构造函数，直接赋值给 window
-      if (typeof diff_match_patch !== 'undefined') {
-        window.diff_match_patch = diff_match_patch;
-      } else {
-        console.error('❌ diff_match_patch 库加载失败！');
-      }
-    </script>
-
-      <script type="module" src="./ui.js"></script>
-    </body>
-    </html>
+  <footer class="footer"></footer>
+  
+  <script src="https://cdn.jsdelivr.net/npm/diff-match-patch@1.0.5/index.js"></script>
+  <script>
+    if (typeof diff_match_patch !== 'undefined') {
+      window.diff_match_patch = diff_match_patch;
+    } else {
+      console.error('❌ diff_match_patch 库加载失败！');
+    }
+  </script>
+  <script type="module" src="./ui.js"></script>
+</body>
+</html>

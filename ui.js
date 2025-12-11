@@ -1,7 +1,7 @@
 
 // ui.js —— 融合 diff 于反面 + 全局 Show more/less（修正版：避免 My 行重复）
 import {
-  loadCards, jumpToCard, getTitles, getStatus, getCurrentCard,
+  loadCards, jumpToCard, getModules, getTitles, getStatus, getCurrentCard,
   toggleBack, next, prev, shuffle
 } from './app.js';
 import { buildDiffHTML } from './diff.js';
@@ -33,12 +33,12 @@ const btnShuffle   = document.getElementById('shuffle');
 
 // ========== 模块选择 ==========
 function fillTitleOptions(){
-  const mods = getTitles();
+  const mods = getModules();
   while (moduleSelect.options.length > 1) moduleSelect.remove(1);
   mods.forEach(m => {
     const opt = document.createElement('option');
-    opt.value = m;
-    opt.text  = m;
+    opt.value = m.moduleId;
+    opt.text  = m.moduleName;
     moduleSelect.add(opt);
   });
   moduleSelect.onchange = () => {
