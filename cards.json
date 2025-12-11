@@ -8,7 +8,7 @@
       "Extended": "I am lost about Y ,后面可以跟这样用法"
     },
     "back": {
-      "Mysentence": "I was inundated with information about the \ndecoration and I was lost about the painting  ",
+      "Mysentence": "I was inundated with information about the decoration and I was lost about the painting  ",
       "Corrected": "",
       "Explain": "",
       "Fluency": "1",
@@ -43,7 +43,7 @@
     },
     "back": {
       "Mysentence": "I was cooking a complicated dinner when my boss sends a urgent message , and I am like , \"are you kidding \"",
-      "Corrected": "I was cooking a complicated dinner when \nmy boss sends an urgent text , \nand I am like , \"are you kidding \"",
+      "Corrected": "I was cooking a complicated dinner when my boss sends an urgent text , and I am like , \"are you kidding \"",
       "Explain": "text 更加口语",
       "Fluency": "1",
       "Createdtime": "12/1/2025"
@@ -59,8 +59,8 @@
       "Extended": ""
     },
     "back": {
-      "Mysentence": "I haven't gone  to the cinema in way too long .\nHas you talked to your friends in way too long  ? ",
-      "Corrected": "I haven't been   to the cinema in way too long .   \n\nHas you talked to your friends in a long time ? \n",
+      "Mysentence": "I haven't gone  to the cinema in way too long .Has you talked to your friends in way too long  ? ",
+      "Corrected": "I haven't been   to the cinema in way too long .Has you talked to your friends in a long time ? ",
       "Explain": "Have been to 去了回来了， have gone to 去了，还在那里；in way too long 只用于否定句",
       "Fluency": "1",
       "Createdtime": "12/5/2025"
@@ -93,8 +93,8 @@
       "Extended": "\nreal answer ； 靠谱的，不是敷衍的回复= true answer =   I want the real answer 我要听实话\nactually：澄清实时， really ： ？？？？\nReal answer   一般性表达， 正确，靠谱的答案"
     },
     "back": {
-      "Mysentence": "I always think the science stuff is too complicate and I am not be able to get their jargons.\nNo , you can find an easy way to expalin science and the real answers. It will help to you to solve the stuff that you actually wander about",
-      "Corrected": "I always think the science stuff is too complicate and I am not be able to get their jargons.\nBut actually , you can find an easy way to expalin science and  real answers. It will help to you to solve the stuff  you actually wander about",
+      "Mysentence": "I always think the science stuff is too complicate and I am not be able to get their jargons.No , you can find an easy way to expalin science and the real answers. It will help to you to solve the stuff that you actually wander about",
+      "Corrected": "I always think the science stuff is too complicate and I am not be able to get their jargons.But actually , you can find an easy way to expalin science and  real answers. It will help to you to solve the stuff  you actually wander about",
       "Explain": "",
       "Fluency": "1",
       "Createdtime": "12/5/2025"
@@ -111,7 +111,7 @@
     },
     "back": {
       "Mysentence": "Come on , spill the story between you and your new bf",
-      "Corrected": "Come , spill . Tell me everything about your new bf",
+      "Corrected": "Come on , spill . Tell me everything about your new bf",
       "Explain": "spill the story 不常见   between 太正式\nSpill the tea about/on XXXX, spill the details",
       "Fluency": "1",
       "Createdtime": "12/8/2025"
@@ -145,7 +145,7 @@
     },
     "back": {
       "Mysentence": "We saw his car and we were like, \"how did he get so much money?\"\nWe heard the rumor and we were like \"seriously?\"\nWe received the invitation and we were like ,\"what's the story with this? \"",
-      "Corrected": "  We saw his car and we were like, \"how did he get so much money?\"/how did he afford this\nWe heard the rumor and we were like \"seriously?\"\nWe received the invitation and we were like ,\"what's the story with this? \"",
+      "Corrected": "  We saw his car and we were like, \"how did he afford this?\"\nWe heard the rumor and we were like \"seriously?\"\nWe received the invitation and we were like ,\"what's the story with this? \"",
       "Explain": "",
       "Fluency": "1",
       "Createdtime": "12/8/2025"

@@ -38,7 +38,7 @@ export function buildDiffHTML(myText, aiText) {
   const aiClean = String(aiText || '').trim();
 
   if (!myClean || !aiClean) {
-    return escapeHtml(aiText) || 'No comparison data available.';
+    return escapeHtml(aiText) || '';
   }
 
   const dmp = new DMP();
