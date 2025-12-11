@@ -1,7 +1,8 @@
 // ui.js —— 最终版本 (包含 prev 逻辑)
 
 // 🚨 导入 prev 函数
-import { PLAN, loadCards, jumpToModule, getModules, getStatus, getCurrentCard, dueList, completeReview, resetProgress, toggleBack, next, prev, shuffle, fmtDate, escapeHtml, extractMyAi, buildDiffHTML } from './app.js';
+import { PLAN, loadCards, jumpToModule, getModules, getStatus, getCurrentCard, dueList, completeReview, resetProgress, toggleBack, next, prev, shuffle, fmtDate} from './app.js';
+import { escapeHtml, extractMyAi, buildDiffHTML } from './diff.js';
 
 // DOM 元素引用
 const statusEl     = document.getElementById('status');
