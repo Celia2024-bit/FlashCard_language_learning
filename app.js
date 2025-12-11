@@ -41,20 +41,20 @@ function normalizeCard(raw, i) {
   const backAI = raw.back.Corrected || raw.back.corrected || ''; 
   
   const parts = [];
-  if (module) parts.push(`🔹 ${module}`);
-  if (ton) parts.push(`\n📢 Tone/Conditon: ${ton}`);
-  if (original) parts.push(`\n❌ Original: ${original}`); 
-  if (explain)  parts.push(`\n💡 Explain: ${explain}`);  
-  if (usage)    parts.push(`\n📘 Usage: ${usage}`); 
-  if (extended) parts.push(`\n\n✨ Extended: ${extended}`);   
+  if (module) parts.push(`🔹 ${module} ： ${ton}`);
+ // if (ton) parts.push(`\n📢 Tone/Conditon: ${ton}`);
+  if (original) parts.push(`\n📢 ${original}`); 
+  if (explain)  parts.push(`\n💡${explain}`);  
+  if (usage)    parts.push(`\n📘 ${usage}`); 
+  if (extended) parts.push(`\n\n✨ ${extended}`);   
   
   const frontText = parts.join('').trim();
   
   const lines = [];
   if (fluency) lines.push(`⭐ Fluency: ${fluency}`); 
-  if (backMy)  lines.push(`📝 My sentence: ${backMy}`);
-  if (backAI)  lines.push(`✅ AI correction: ${backAI}`);
-  if (backExplain) lines.push(`💡 Explain: ${backExplain}`);
+  if (backMy)  lines.push(`📝  ${backMy}`);
+  if (backAI)  lines.push(`✅  ${backAI}`);
+  if (backExplain) lines.push(`💡  ${backExplain}`);
   
   const backText = lines.join('\n').trim();
 

@@ -52,10 +52,10 @@
   },
   {
     "front": {
-      "Original": "And like most guys , I haven't been to the\n doctor in way too long",
+      "Original": "And like most guys , I haven't been to the doctor in way too long",
       "Tone": "informal",
       "Explain": "基本等于 in a long time / ages ago 这件事情是很久以前的事情的   这两个比较中性\n",
-      "Usage": "in way too long/ in a long time  一般疑问句/ 否定句\nShe hasn't visited her hometown in way too long/in a long time \n她上次回家乡，是很久以前的事情了\nvs for ages/ for a long time  状态持续的 how long \nin way too long: 非常口语，且extra emotion/ 觉得真的是太久了\nin way too long: 否定句\nin a long time : 否定，和疑问   \n",
+      "Usage": "She hasn't visited her hometown in way too long/in a long time \n她上次回家乡，是很久以前的事情了\nvs for ages/ for a long time  状态持续的 how long \nin way too long: 非常口语，且extra emotion/ 觉得真的是太久了\nin way too long: 否定句\nin a long time : 否定，和疑问   \n",
       "Extended": ""
     },
     "back": {
@@ -86,7 +86,7 @@
   },
   {
     "front": {
-      "Original": "We'll talk science without jargon\n and get you real answers to the stuff that you\n actually wonder about ",
+      "Original": "We'll talk science without jargon and get you real answers to the stuff that you actually wonder about ",
       "Tone": "informal",
       "Explain": "talk science, talk politics, talk business 正事 , talk tech 更加口语\nstuff  口语常见",
       "Usage": "",
@@ -99,7 +99,7 @@
       "Fluency": "1",
       "Createdtime": "12/5/2025"
     },
-    "module": "talk science / without  jargon /\n real answers/the stuff you acutally wonder about "
+    "module": "talk science / without  jargon / real answers/the stuff you acutally wonder about "
   },
   {
     "front": {
@@ -127,8 +127,8 @@
       "Extended": ""
     },
     "back": {
-      "Mysentence": "My communting hack is getting early to the office \nand there is no traffic jam",
-      "Corrected": "My communting hack is getting to the office early to beat the traffice\n",
+      "Mysentence": "My communting hack is getting early to the office and there is no traffic jam",
+      "Corrected":  "My communting hack is getting to the office early to beat the traffice",
       "Explain": "\n--  avoid traffic:避开交通阻塞  beat the traffic 赶在高峰前（口语），\nshik the rush hour  避开高峰期\n一般traffic就是交通量大， 常用 , traffic jam具体事件\n He drove his car carfully to the office today",
       "Fluency": "1",
       "Createdtime": "12/8/2025"
@@ -137,7 +137,7 @@
   },
   {
     "front": {
-      "Original": "We saw the pictures and we were like,\n \" what's the story with this?\"",
+      "Original": "We saw the pictures and we were like, \" what's the story with this?\"",
       "Tone": "informal",
       "Explain": "this: this situation, this whole thing\nwhat is this? 这群乱七八糟的是啥\nwhat's the story with XXX 口语化，",
       "Usage": "具体vs what's going on ?/what's the deal with/\nWhat's the story with your new haircut. ",
@@ -150,7 +150,7 @@
       "Fluency": "1",
       "Createdtime": "12/8/2025"
     },
-    "module": "We saw/heard sth and we were like\n ,\"What's the story with this ?\""
+    "module": "We saw/heard sth and we were like ,\"What's the story with this ?\""
   },
   {
     "front": {
@@ -188,7 +188,7 @@
   },
   {
     "front": {
-      "Original": "The manager put the team on notice \nabout upcoming deadlines",
+      "Original": "The manager put the team on notice about upcoming deadlines",
       "Tone": "informal",
       "Explain": "口语的：警告，提醒。  正式 warn， 不是通知 give notice",
       "Usage": "口吻： playful 开玩笑， 稍微有点不那么冒犯\nThe teacher put students on notice that cheating wouldn't be tolerated    虽然是口语的用法，但是这个本身算是很严重的警告了",
