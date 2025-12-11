@@ -42,7 +42,7 @@ function normalizeCard(raw, i) {
   if (fluency) lines.push(`⭐ Fluency: ${fluency}`); 
   if (backMy)  lines.push(`📝  ${backMy}`);
   if (backAI)  lines.push(`✅  ${backAI}`);
-  if (backExplain) lines.push(`💡  ${backExplain}`);
+ // if (backExplain) lines.push(`💡  ${backExplain}`);
   
   const backText = lines.join('\n').trim();
 
@@ -56,6 +56,7 @@ function normalizeCard(raw, i) {
     backText, 
     backMy, 
     backAI, 
+    backExplain,
     step: 0, 
     lastReviewed: null, 
     dueDate: null,
