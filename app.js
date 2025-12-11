@@ -89,7 +89,7 @@ function persist(card) {
 }
 
 /* 快速跳转到某个模块的卡片 */
-export function jumpToModule(moduleName) { 
+export function jumpToCard(moduleName) { 
   const targetModule = (moduleName || '').trim();
   if (!targetModule) {
     idx = 0; // 跳到第一张
@@ -98,7 +98,7 @@ export function jumpToModule(moduleName) {
     idx = foundIdx >= 0 ? foundIdx : 0;
   }
   showBack = false;
-  console.log('jumpToModule:', targetModule, 'idx:', idx);
+  console.log('jumpToCard:', targetModule, 'idx:', idx);
 }
 
 export const getModules = () => Array.from(new Set(cards.map(c => (c.module || '').trim()).filter(Boolean))).sort();

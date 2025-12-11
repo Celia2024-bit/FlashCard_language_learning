@@ -1,7 +1,7 @@
 // ui.js —— 最终版本 (包含 prev 逻辑)
 
 // 🚨 导入 prev 函数
-import { PLAN, loadCards, jumpToModule, getModules, getStatus, getCurrentCard, dueList, completeReview, resetProgress, toggleBack, next, prev, shuffle, fmtDate} from './app.js';
+import { PLAN, loadCards, jumpToCard, getModules, getStatus, getCurrentCard, dueList, completeReview, resetProgress, toggleBack, next, prev, shuffle, fmtDate} from './app.js';
 import { escapeHtml, extractMyAi, buildDiffHTML } from './diff.js';
 
 // DOM 元素引用
@@ -49,7 +49,7 @@ function fillModuleOptions(){
   
   moduleSelect.onchange = () => { 
     const m = moduleSelect.value || ''; 
-    jumpToModule(m);  
+    jumpToCard(m);  
     moduleLabel.innerText = '模块：' + (m || '全部'); 
     render(true); 
   };
