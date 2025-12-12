@@ -12,7 +12,8 @@ import {
   next,
   prev,
   shuffle,
-  goBack
+  goBack,
+  jumpToCardById
 } from './app.js';
 import { buildDiffHTML } from './diff.js';
 import { escapeHtml } from './util.js';
