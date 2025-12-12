@@ -1,4 +1,4 @@
-// app.js - 重构版：清晰区分 Module 和 Card 的关系
+// app.js - 重构版：添加 Review 模式支持
 const KEY = 'flashcards_state_v1';
 
 let modules = [];           // 所有模块信息
@@ -6,10 +6,43 @@ let allCards = [];          // 所有卡片（扁平化）
 let filteredCards = [];     // 当前显示的卡片（根据 module 筛选）
 let idx = 0;                // 当前卡片索引
 let showBack = true;       // 是否显示背面
-let currentModuleId = '';   // 当前选择的 moduleId（空表示全部）
+let currentModuleId = '';   // 当前选择的 moduleId（空表示全部，'review'表示复习模式）
 let history = [];           // 导航历史记录
 
+// Review 模式的卡片列表（可以从外部设置）
+let reviewCardIds = [
+    'mod1_card_1',  // I was inundated with A
+    'mod1_card_3',  // I was A when B happens
+    'mod1_card_6',  // talk science without jargon
+    'mod1_card_10'  // Get real with sb about sth
+];
+
 import { addDays, stripTime } from './util.js';
+
+/* ========== Review 模式管理 ========== */
+
+/**
+ * 设置 Review 模式的卡片列表
+ * @param {Array<string>} cardIds - 卡片ID数组
+ */
+export function setReviewCardIds(cardIds) {
+  if (Array.isArray(cardIds)) {
+    reviewCardIds = cardIds;
+    console.log(`📝 设置 Review 卡片列表:`, reviewCardIds);
+    
+    // 如果当前就在 Review 模式，刷新卡片列表
+    if (currentModuleId === 'review') {
+      setModule('review');
+    }
+  }
+}
+
+/**
+ * 获取 Review 模式的卡片列表
+ */
+export function getReviewCardIds() {
+  return [...reviewCardIds];
+}
 
 /* ========== 卡片规范化 ========== */
 
@@ -135,7 +168,7 @@ export async function loadCards() {
 
 /**
  * 设置当前 Module（会自动更新 filteredCards）
- * @param {string} moduleId - 模块ID，空字符串表示"全部"
+ * @param {string} moduleId - 模块ID，空字符串表示"全部"，'review'表示复习模式
  */
 export function setModule(moduleId) {
   currentModuleId = moduleId || '';
@@ -143,6 +176,13 @@ export function setModule(moduleId) {
   if (!currentModuleId) {
     // 显示全部卡片
     filteredCards = [...allCards];
+  } else if (currentModuleId === 'review') {
+    // Review 模式：只显示指定的卡片
+    filteredCards = reviewCardIds
+      .map(cardId => allCards.find(c => c.cardId === cardId))
+      .filter(c => c); // 过滤掉未找到的卡片
+    
+    console.log(`📖 Review 模式: ${filteredCards.length}/${reviewCardIds.length} 张卡片`);
   } else {
     // 只显示该 module 的卡片
     filteredCards = allCards.filter(c => c.moduleId === currentModuleId);
@@ -151,8 +191,6 @@ export function setModule(moduleId) {
   // 重置状态
   idx = 0;
   history = [];
-  
-  console.log('set module ,history is null',  history);
   
   console.log(`📂 切换到 Module: ${currentModuleId || '全部'}, 卡片数: ${filteredCards.length}`);
 }
@@ -195,9 +233,10 @@ export function setCard(cardId) {
  */
 export function jumpToCardById(cardId, saveHistory = true) {
   // 保存当前位置到历史
-  // 在全局查找目标卡片
   const origincard = filteredCards[idx];
-  const originalModuelId = currentModuleId;
+  const originalModuleId = currentModuleId;
+  
+  // 在全局查找目标卡片
   const targetCard = allCards.find(c => c.cardId === cardId);
   if (!targetCard) {
     console.warn('⚠️ 未找到卡片:', cardId);
@@ -215,13 +254,13 @@ export function jumpToCardById(cardId, saveHistory = true) {
   if (saveHistory && filteredCards.length > 0) {
     if (origincard) { 
       history.push({
-        moduleId: originalModuelId,
+        moduleId: originalModuleId,
         cardId: origincard.cardId,
         idx: idx
       });
     }
   }
-  console.log('jumpToCardById ,history :',  history);
+  console.log('jumpToCardById, history:', history);
 }
 
 /**
@@ -230,7 +269,8 @@ export function jumpToCardById(cardId, saveHistory = true) {
 export function goBack() {
   if (history.length === 0) return false;
   const prev = history.pop();
-  console.log('goBack ,history :',  history);
+  console.log('goBack, history:', history);
+  
   // 恢复 Module
   if (prev.moduleId !== currentModuleId) {
     setModule(prev.moduleId);
@@ -243,11 +283,11 @@ export function goBack() {
 /* ========== 获取信息 ========== */
 
 /**
- * 获取所有模块信息
+ * 获取所有模块信息（包含 Review 模式）
  * @returns {Array<{moduleId: string, moduleName: string, cardCount: number}>}
  */
 export function getModules() {
-  return modules.map(m => {
+  const regularModules = modules.map(m => {
     const cardCount = allCards.filter(c => c.moduleId === m.moduleId).length;
     return {
       moduleId: m.moduleId,
@@ -255,6 +295,15 @@ export function getModules() {
       cardCount: cardCount
     };
   });
+  
+  // 添加 Review 模式
+  const reviewModule = {
+    moduleId: 'review',
+    moduleName: '📖 Review (复习模式)',
+    cardCount: reviewCardIds.filter(id => allCards.find(c => c.cardId === id)).length
+  };
+  
+  return [...regularModules, reviewModule];
 }
 
 /**
@@ -319,5 +368,10 @@ window.debugState = () => ({
   filteredCards: filteredCards.length,
   currentIndex: idx,
   showBack,
-  history: history.length
+  history: history.length,
+  reviewCards: reviewCardIds.length
 });
+
+// 导出供外部调用
+window.setReviewCardIds = setReviewCardIds;
+window.getReviewCardIds = getReviewCardIds;

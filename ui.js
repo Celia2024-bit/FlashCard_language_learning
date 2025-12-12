@@ -1,4 +1,4 @@
-// ui.js - 配合重构后的 app.js
+// ui.js - 配合重构后的 app.js，支持 Review 模式
 import {
   loadCards,
   setModule,
@@ -39,7 +39,7 @@ const btnBack      = document.getElementById('back');
     render();
   } catch (e) {
     errEl.style.display = 'block';
-    errEl.textContent   = '加载错误：' + e.message + '（请确认 future_1_.json 与本页同目录，并通过 http 服务访问）';
+    errEl.textContent   = '加载错误：' + e.message + '（请确认 JSON 文件与本页同目录，并通过 http 服务访问）';
     statusEl.textContent= '加载失败';
   }
 })();
@@ -53,7 +53,7 @@ function fillModuleOptions(){
     moduleSelect.remove(1);
   }
   
-  // 添加所有模块
+  // 添加所有模块（包括 Review）
   mods.forEach(m => {
     const opt = document.createElement('option');
     opt.value = m.moduleId;
@@ -65,9 +65,6 @@ function fillModuleOptions(){
   moduleSelect.onchange = () => {
     const selectedModuleId = moduleSelect.value || '';
     setModule(selectedModuleId);
-    
-    // 更新标签显示
-    const selectedText = moduleSelect.options[moduleSelect.selectedIndex].text;
     
     // 重新填充卡片选项
     fillCardOptions();
@@ -92,12 +89,6 @@ function fillCardOptions(){
     opt.text  = c.title;
     cardSelect.add(opt);
   });
-  
-  // 更新标签显示
-  const currentModuleId = getCurrentModuleId();
-  const moduleName = currentModuleId 
-    ? getModules().find(m => m.moduleId === currentModuleId)?.moduleName 
-    : '全部';
   
   // 绑定切换事件
   cardSelect.onchange = () => {
@@ -128,9 +119,16 @@ function render(){
   }
   
   // 更新状态栏
-  const currentModuleName = getCurrentModuleId() 
-    ? getModules().find(m => m.moduleId === getCurrentModuleId())?.moduleName 
-    : '全部';
+  const currentModuleId = getCurrentModuleId();
+  let currentModuleName = '全部';
+  
+  if (currentModuleId === 'review') {
+    currentModuleName = '📖 Review';
+  } else if (currentModuleId) {
+    const module = getModules().find(m => m.moduleId === currentModuleId);
+    currentModuleName = module ? module.moduleName : currentModuleId;
+  }
+  
   statusEl.textContent = `${currentModuleName} - 第 ${index + 1}/${total} 张`;
   
   // 显示/隐藏返回按钮
