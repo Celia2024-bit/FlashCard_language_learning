@@ -78,7 +78,7 @@ function normalizeModule2Card(raw, moduleId) {
 /* ========== 数据加载 ========== */
 
 export async function loadCards() {
-  const resp = await fetch('./future_.json');           
+  const resp = await fetch('./cards.json');           
   const json = await resp.json();
   
   modules = json.modules || [];
