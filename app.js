@@ -128,6 +128,8 @@ export function setModule(moduleId) {
   idx = 0;
   history = [];
   
+  console.log('set module ,history is null',  history);
+  
   console.log(`📂 切换到 Module: ${currentModuleId || '全部'}, 卡片数: ${filteredCards.length}`);
 }
 
@@ -170,6 +172,8 @@ export function setCard(cardId) {
 export function jumpToCardById(cardId, saveHistory = true) {
   // 保存当前位置到历史
   // 在全局查找目标卡片
+  const origincard = filteredCards[idx];
+  const originalModuelId = currentModuleId;
   const targetCard = allCards.find(c => c.cardId === cardId);
   if (!targetCard) {
     console.warn('⚠️ 未找到卡片:', cardId);
@@ -185,15 +189,15 @@ export function jumpToCardById(cardId, saveHistory = true) {
   setCard(cardId);
   
   if (saveHistory && filteredCards.length > 0) {
-    const currentCard = filteredCards[idx];
-    if (currentCard) { 
+    if (origincard) { 
       history.push({
-        moduleId: currentModuleId,
-        cardId: currentCard.cardId,
+        moduleId: originalModuelId,
+        cardId: origincard.cardId,
         idx: idx
       });
     }
   }
+  console.log('jumpToCardById ,history :',  history);
 }
 
 /**
@@ -201,15 +205,12 @@ export function jumpToCardById(cardId, saveHistory = true) {
  */
 export function goBack() {
   if (history.length === 0) return false;
-  
   const prev = history.pop();
-  
+  console.log('goBack ,history :',  history);
   // 恢复 Module
   if (prev.moduleId !== currentModuleId) {
     setModule(prev.moduleId);
   }
-  
-  // 恢复卡片位置
   setCard(prev.cardId);
   
   return true;
