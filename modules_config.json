@@ -1,0 +1,14 @@
+[
+  {
+    "moduleId": "mod1",
+    "moduleName": "单个知识点学习",
+    "moduleDesc": "每张卡对应一个英文口语知识点，包含我的句子+AI纠正",
+    "dataFile": "./mod1_cards.json" 
+  },
+  {
+    "moduleId": "mod2",
+    "moduleName": "综合练习模块",
+    "moduleDesc": "每张卡对应一个综合场景/对话，包含我的版本+AI纠正+关联Module1知识点",
+    "dataFile": "./mod2_cards.json" 
+  }
+]
