@@ -132,10 +132,16 @@ function render(){
   }
   
   // 更新状态栏
-  statusEl.textContent = `第 ${index + 1}/${total} 张`;
+  const currentModuleName = getCurrentModuleId() 
+    ? getModules().find(m => m.moduleId === getCurrentModuleId())?.moduleName 
+    : '全部';
+  statusEl.textContent = `${currentModuleName} - 第 ${index + 1}/${total} 张`;
   
   // 显示/隐藏返回按钮
   btnBack.style.display = hasHistory ? 'inline-block' : 'none';
+  if (hasHistory) {
+    btnBack.textContent = '← back';
+  }
   
   // 渲染正面
   const frontStrRaw = c.frontText || '';

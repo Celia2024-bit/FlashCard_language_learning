@@ -169,17 +169,6 @@ export function setCard(cardId) {
  */
 export function jumpToCardById(cardId, saveHistory = true) {
   // 保存当前位置到历史
-  if (saveHistory && filteredCards.length > 0) {
-    const currentCard = filteredCards[idx];
-    if (currentCard) {
-      history.push({
-        moduleId: currentModuleId,
-        cardId: currentCard.cardId,
-        idx: idx
-      });
-    }
-  }
-  
   // 在全局查找目标卡片
   const targetCard = allCards.find(c => c.cardId === cardId);
   if (!targetCard) {
@@ -194,6 +183,17 @@ export function jumpToCardById(cardId, saveHistory = true) {
   
   // 定位到目标卡片
   setCard(cardId);
+  
+  if (saveHistory && filteredCards.length > 0) {
+    const currentCard = filteredCards[idx];
+    if (currentCard) { 
+      history.push({
+        moduleId: currentModuleId,
+        cardId: currentCard.cardId,
+        idx: idx
+      });
+    }
+  }
 }
 
 /**
