@@ -23,9 +23,7 @@ const statusEl     = document.getElementById('status');
 const errEl        = document.getElementById('error');
 const cardTextEl   = document.getElementById('cardText');
 const moduleSelect = document.getElementById('moduleSelect');
-const moduleLabel  = document.getElementById('moduleLabel');
 const cardSelect   = document.getElementById('cardSelect');
-const cardLabel    = document.getElementById('cardLabel');
 const btnShow      = document.getElementById('show');
 const btnPrev      = document.getElementById('prev');
 const btnNext      = document.getElementById('next');
@@ -70,7 +68,6 @@ function fillModuleOptions(){
     
     // 更新标签显示
     const selectedText = moduleSelect.options[moduleSelect.selectedIndex].text;
-    moduleLabel.textContent = `模块：${selectedText}`;
     
     // 重新填充卡片选项
     fillCardOptions();
@@ -101,7 +98,6 @@ function fillCardOptions(){
   const moduleName = currentModuleId 
     ? getModules().find(m => m.moduleId === currentModuleId)?.moduleName 
     : '全部';
-  cardLabel.textContent = `卡片：${moduleName} (${cards.length}张)`;
   
   // 绑定切换事件
   cardSelect.onchange = () => {
