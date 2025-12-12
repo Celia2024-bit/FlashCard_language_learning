@@ -17,16 +17,16 @@ function normalizeModule1Card(raw, moduleId) {
   const cardId = raw.cardId;
   const title = raw.title || 'Untitled';
   
-  const original = raw.front.Original || raw.front.original || '';
-  const explain  = raw.front.Explain  || raw.front.explain  || '';
-  const usage    = raw.front.Usage    || raw.front.usage    || '';
-  const extended = raw.front.Extended || raw.front.extended || ''; 
-  const tone     = raw.front.Tone     || raw.front.tone || ''; 
+  const original = raw.Original || raw.original || '';
+  const explain  = raw.Explain  || raw.explain  || '';
+  const usage    = raw.Usage    || raw.usage    || '';
+  const extended = raw.Extended || raw.extended || ''; 
+  const tone     = raw.Tone     || raw.tone || ''; 
   
-  const backExplain = raw.back.Explain || raw.back.explain || '';
-  const fluency = raw.back.Fluency || raw.back.fluency || ''; 
-  const backMy = raw.back.Mysentence || raw.back.mysentence || ''; 
-  const backAI = raw.back.Corrected || raw.back.corrected || ''; 
+  const backExplain = raw.ExplainCorrected || raw.explainCorrected || '';
+  const fluency = raw.Fluency || raw.fluency || ''; 
+  const backMy = raw.Mysentence || raw.mysentence || ''; 
+  const backAI = raw.Corrected || raw.corrected || ''; 
   
   const parts = [];
   if (title) parts.push(`🔹 ${title}${tone ? ' : ' + tone : ''}`);
@@ -36,7 +36,7 @@ function normalizeModule1Card(raw, moduleId) {
   if (extended) parts.push(`\n\n✨ ${extended}`);   
   
   const frontText = parts.join('').trim();
-  const createdTime = raw.back.Createdtime || raw.back.createdtime || null; 
+  const createdTime = raw.Createdtime || raw.createdtime || null; 
 
   return { 
     cardId, 
@@ -77,32 +77,56 @@ function normalizeModule2Card(raw, moduleId) {
 
 /* ========== 数据加载 ========== */
 
+// 异步加载一个 JSON 文件
+async function fetchJson(path) {
+  const resp = await fetch(path);
+  if (!resp.ok) {
+    throw new Error(`Failed to load ${path}: ${resp.statusText}`);
+  }
+  return resp.json();
+}
+
 export async function loadCards() {
-  const resp = await fetch('./cards.json');           
-  const json = await resp.json();
-  
-  modules = json.modules || [];
+  // 1. 加载模块配置
+  const moduleConfigs = await fetchJson('./modules_config.json');
+  modules = moduleConfigs || [];
   allCards = [];
   
-  modules.forEach(module => {
-    const moduleId = module.moduleId;
-    const cards = module.cards || [];
-    
-    cards.forEach(raw => {
-      let card;
-      if (moduleId === 'mod1') {
-        card = normalizeModule1Card(raw, moduleId);
-      } else if (moduleId === 'mod2') {
-        card = normalizeModule2Card(raw, moduleId);
+  // 2. 准备并发加载所有模块卡片数据的 Promise
+  const loadPromises = modules.map(async module => {
+    try {
+      // 从配置中获取数据文件路径
+      const dataPath = module.dataFile; 
+      if (!dataPath) {
+        console.warn(`⚠️ Module ${module.moduleId} has no dataFile specified.`);
+        return [];
       }
       
-      if (card) {
-        allCards.push(card);
-      }
-    });
+      const rawCards = await fetchJson(dataPath);
+      const moduleId = module.moduleId;
+      
+      // 3. 规范化卡片数据
+      return rawCards.map(raw => {
+        let card;
+        if (moduleId === 'mod1') {
+          card = normalizeModule1Card(raw, moduleId);
+        } else if (moduleId === 'mod2') {
+          card = normalizeModule2Card(raw, moduleId);
+        }
+        return card;
+      }).filter(c => c); // 过滤掉null/undefined的卡片
+      
+    } catch (error) {
+      console.error(`❌ Error loading cards for module ${module.moduleId}:`, error);
+      return [];
+    }
   });
 
-  // 默认显示全部
+  // 4. 等待所有卡片数据加载完成并合并
+  const allCardArrays = await Promise.all(loadPromises);
+  allCards = allCardArrays.flat(); // 使用 flat() 将二维数组展平成一维
+  
+  // 5. 初始化状态
   setModule('');
   console.log('✅ 加载了', allCards.length, '张卡片，分布在', modules.length, '个模块');
 }
