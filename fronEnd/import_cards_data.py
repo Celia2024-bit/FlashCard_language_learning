@@ -5,7 +5,7 @@ from datetime import date, timedelta
 from database_manager import DB_NAME, connect_db 
 
 # 核心修改点 1: 引用新的 JSON 文件名
-CARDS_JSON_FILE = 'mod1_cards.json' 
+CARDS_JSON_FILE = '../mod1_cards.json' 
 
 # 假设的今天日期，用于设置初始状态
 TODAY = date(2025, 12, 11) 
