@@ -121,7 +121,7 @@ async function fetchJson(path) {
 
 export async function loadCards() {
   // 1. 加载模块配置
-  const moduleConfigs = await fetchJson('./modules_config.json');
+  const moduleConfigs = await fetchJson('../database/modules_config.json');
   modules = moduleConfigs || [];
   allCards = [];
   
