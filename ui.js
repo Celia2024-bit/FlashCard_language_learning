@@ -236,5 +236,7 @@ btnBack.onclick = () => {
 };
 
 // ========== 调试 ==========
+// ========== 调试 ==========
 window.debugGetCurrentCard = getCurrentCard;
 window.debugRender = render;
+window.fillCardOptions = fillCardOptions;  // 暴露填充卡片选项的函数

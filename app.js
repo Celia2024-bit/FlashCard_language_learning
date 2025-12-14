@@ -18,7 +18,7 @@ let reviewCardIds = [
 ];
 
 import { addDays, stripTime } from './util.js';
-
+import { loadCardsData } from './cardManager.js';
 /* ========== Review 模式管理 ========== */
 
 /**
@@ -128,15 +128,21 @@ export async function loadCards() {
   // 2. 准备并发加载所有模块卡片数据的 Promise
   const loadPromises = modules.map(async module => {
     try {
-      // 从配置中获取数据文件路径
-      const dataPath = module.dataFile; 
-      if (!dataPath) {
-        console.warn(`⚠️ Module ${module.moduleId} has no dataFile specified.`);
-        return [];
-      }
-      
-      const rawCards = await fetchJson(dataPath);
       const moduleId = module.moduleId;
+      let rawCards;
+      
+      // ⭐ 核心修改：对于 mod1，使用 cardManager 加载（支持 localStorage）
+      if (moduleId === 'mod1') {
+        rawCards = await loadCardsData();
+      } else {
+        // 其他模块仍从 JSON 文件加载
+        const dataPath = module.dataFile;
+        if (!dataPath) {
+          console.warn(`⚠️ Module ${module.moduleId} has no dataFile specified.`);
+          return [];
+        }
+        rawCards = await fetchJson(dataPath);
+      }
       
       // 3. 规范化卡片数据
       return rawCards.map(raw => {
