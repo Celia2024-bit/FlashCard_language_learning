@@ -75,23 +75,5 @@
       "mod1_card_13"
     ],
     "createdTime": "2025-12-11"
-  },
-  {
-    "scene": "222",
-    "title": "222",
-    "Mysentence": "eeee",
-    "Corrected": "",
-    "Explain": "",
-    "relatedCards": [],
-    "cardId": "mod2_card_1765736683"
-  },
-  {
-    "scene": "6666",
-    "title": "6666",
-    "Mysentence": "",
-    "Corrected": "",
-    "Explain": "",
-    "relatedCards": [],
-    "cardId": "mod2_card_1765736745"
   }
 ]
