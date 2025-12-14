@@ -1,6 +1,6 @@
 [
   {
-    "cardId": "mod2_card_1",
+    "cardid": "mod2_card_1",
     "scene": "朋友借钱场景",
     "Mysentence": "I was playing on my phone when an notification pops up ,and I'm like \"are you for real? \"  . My friend had wanted to borrow 10,000 dollors, but I refused. Inundated with a bunch of text, I felt personally victimized by the criticisms from other friends .I am lost about friendship.",
     "Corrected": "I was playing on my phone when an notification pops up ,and I'm like \"are you for real? \"  . My friend had asked to borrow 10,000 dollors, but I refused. Inundated with a bunch of text, I felt personally victimized by the criticisms from other friends .I am lost about friendship.",
@@ -13,7 +13,7 @@
     "createdTime": "2025-12-11"
   },
   {
-    "cardId": "mod2_card_2",
+    "cardid": "mod2_card_2",
     "scene": "商务沟通场景",
     "Mysentence": "As we are inundated with jargons and often lost about the stuff we actually wander about, I'll be talking business without jargon. You know ,we haven't had a business talk in way too long and it's hard to get real answers when everything sounds so complicated. And I'm like , \"Why not make the stuff easier \"",
     "Corrected": "As we are inundated with jargons and often lost about the stuff we actually wander about, I'll be talking business without jargon. You know ,we haven't had a business talk in far way too long and it's hard to get real answers when everything sounds so complicated. And I'm like , \"Why not just keep it simple\"",
@@ -27,7 +27,7 @@
     "createdTime": "2025-12-11"
   },
   {
-    "cardId": "mod2_card_3",
+    "cardid": "mod2_card_3",
     "scene": "家庭沟通（催婚）场景",
     "Mysentence": "I haven't visited my parents in way too long . I was talking business and they suddenly shout \"you should get married as soon as possible\", and I'm like \"What's happened ? What are you talking about?\" Inundated with pressure of getting married , I decided to discuss the benefit and drawback of marriage with jardon and get real answers. My parent was lost  and felt personally victimized by the stuff they actually don't wonder about.",
     "Corrected": "I haven't visited my parents in way too long. I was talking business when they suddenly shout, \"You should get married as soon as possible,\" and I'm like, \"What just happened? What are you even talking about?\" Inundated with pressure to get married, I decided to talk about the pros and cons of marriage without jargon and get some real answers. My parents were totally lost and felt personally victimized by stuff they never even cared about.",
@@ -42,7 +42,7 @@
     "createdTime": "2025-12-11"
   },
   {
-    "cardId": "mod2_card_4",
+    "cardid": "mod2_card_4",
     "scene": "职场沟通（Tom被解雇）场景",
     "Mysentence": "We heard the new that Tom was fired and we were like \"What's the story with this?\" His boss spilled the details. He felt personally victimized by Tom's bad words. Later Tom got real with his boss about his attitude and got a working hack --- repecting everyone in the office.",
     "Corrected": "We heard the new that Tom was fired and we were like \"What's the story with this?\" His boss spilled the details. He felt personally victimized by Tom's harsh words. Later Tom got real with his boss about his attitude and got/pick up a working hack --- repecting everyone in the office.",
@@ -57,7 +57,7 @@
     "createdTime": "2025-12-11"
   },
   {
-    "cardId": "mod2_card_5",
+    "cardid": "mod2_card_5",
     "scene": "家庭学习沟通（作业冲突）场景",
     "Mysentence": "I was playing video games with my friends when my parents put me on notice to finish my homework ,and I'm like, \"There is no end to homework\". I didn't listen to them and my parent felt triggered by my attitude . So I got real with my parents about my thought :\"When my teacher talks science with jargon ,I am alway lost and can't get the real answer\". Then my father told me his learning hack - \"When you want to get the stuff that you actually wonder about , just ask your teacher to say it again. Don't worry , he will not feel personally victimized.\" The next day ,I spilled the detais with my friends and they are like , \"For really , we haven't talked to him in way too long\"",
     "Corrected": "I was playing video games with my friends when my parents suddenly put me on notice to finish my homework ,and I'm like, \"There is no end to homework\". I didn't listen to them and my parents totally felt triggered by my attitude . So I got real with my parents about how I felt :\"When my teacher talks science with jargon ,I am alway lost and can't get the real answer\". Then my father shared his learning hack - \"If you really want to get the stuff that you actually wonder about , just ask your teacher to say it again. Don't worry , he will not feel personally victimized.\" The next day ,I spilled the detais with my friends and they are like , \"For real , we haven't talked to him in way too long\"",
