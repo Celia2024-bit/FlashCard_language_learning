@@ -5,3 +5,10 @@ python -m http.server 8080   //start html
 
 
 http://localhost:8080/index.html    //open html
+
+
+# requirements.txt
+Flask
+flask-cors
+gunicorn
+requests
