@@ -1,15 +1,14 @@
-// cardManager.js - 前端卡片管理模块（通过 Flask 后端 API 管理数据）
+// cardManager.js - 前端卡片管理模块（通过 Flask + MongoDB 后端 API 管理数据）
 
 // ==========================================================
 // 🚨 关键配置：后端 API 地址
-// 部署到公共平台后，请务必将此地址修改为您的公共 API URL
-// 例如: 'https://your-flask-app-name.onrender.com/api/'
+// 在本地测试时使用 http://127.0.0.1:5000/api/
+// 部署到 Render 后，请务必修改为您的公共 API URL (例如: https://your-render-app.onrender.com/api/)
 // ==========================================================
 const API_BASE_URL = 'http://127.0.0.1:5000/api/'; 
 
-// 模块配置 (不再需要 storageKey 和 jsonPath，后端会处理)
+// 模块配置 (仅保留模块ID，用于构建 API URL)
 const MODULE_CONFIGS = {
-  // 仅保留模块ID，用于构建 API URL
   'mod1': { moduleId: 'mod1' }, 
   'mod2': { moduleId: 'mod2' }
 };
@@ -35,7 +34,6 @@ async function apiFetch(method, moduleId, path = '', body = null) {
     method: method,
     headers: {
       'Content-Type': 'application/json',
-      // Flask CORS 会检查 Origin，确保已在后端启用 CORS
     }
   };
   
@@ -49,8 +47,10 @@ async function apiFetch(method, moduleId, path = '', body = null) {
   const data = await response.json().catch(() => ({})); 
 
   if (!response.ok) {
-    // 抛出错误，包含后端返回的错误信息
-    throw new Error(data.error || `API 请求失败，状态码: ${response.status}`);
+    // 抛出错误，包含后端返回的错误信息或 HTTP 状态码
+    const errorMessage = data.error || `API 请求失败，状态码: ${response.status}`;
+    console.error('API Error Response:', data);
+    throw new Error(errorMessage);
   }
   
   return data;
@@ -67,16 +67,18 @@ async function apiFetch(method, moduleId, path = '', body = null) {
 export async function loadCardsData(moduleId = 'mod1') {
   try {
     console.log(`📡 从 Flask 后端加载 ${moduleId} 卡片数据`);
+    // API 返回的是卡片数组
     const cards = await apiFetch('GET', moduleId); 
     return Array.isArray(cards) ? cards : [];
   } catch (error) {
     console.error(`❌ 加载 ${moduleId} 卡片数据失败:`, error);
+    // 失败时返回空数组，不影响程序运行
     return [];
   }
 }
 
 /**
- * 移除：前端不再负责持久化。数据通过 add/update/delete 直接写入后端。
+ * 移除：前端不再负责持久化（saveCardsData 函数已被后端逻辑取代）
  */
 // export function saveCardsData(cards, moduleId = 'mod1') { ... } 
 
@@ -110,6 +112,7 @@ export async function addCard(cardData, moduleId = 'mod1') {
 export async function updateCard(cardId, updates, moduleId = 'mod1') {
   try {
     const path = `/${cardId}`;
+    // 发送需要更新的字段到后端
     const result = await apiFetch('PUT', moduleId, path, updates);
     
     console.log(`✅ 成功更新 ${moduleId} 卡片: ${cardId}`);
@@ -140,7 +143,7 @@ export async function deleteCard(cardId, moduleId = 'mod1') {
 }
 
 // ==========================================================
-// 辅助功能
+// 辅助功能 (Export/Import/Reset)
 // ==========================================================
 
 /**
@@ -151,8 +154,7 @@ export async function getAllCards(moduleId = 'mod1') {
 }
 
 /**
- * 根据ID获取单张卡片 (从当前内存数据中获取)
- * 注意：由于 loadCardsData 是异步的，调用方可能需要处理数据未加载的情况。
+ * 根据ID获取单张卡片 (从后端获取最新数据中查找)
  */
 export async function getCardById(cardId, moduleId = 'mod1') {
   const cards = await loadCardsData(moduleId);
@@ -160,7 +162,7 @@ export async function getCardById(cardId, moduleId = 'mod1') {
 }
 
 /**
- * 导出卡片数据 (先从后端获取最新数据，然后前端进行文件下载)
+ * 导出卡片数据 (从后端获取最新数据，然后在前端进行文件下载)
  */
 export async function exportCardsToJson(moduleId = 'mod1') {
   try {
@@ -175,7 +177,9 @@ export async function exportCardsToJson(moduleId = 'mod1') {
     const a = document.createElement('a');
     a.href = url;
     a.download = `${moduleId}_cards_backup_${Date.now()}.json`;
+    document.body.appendChild(a);
     a.click();
+    document.body.removeChild(a);
     
     URL.revokeObjectURL(url);
     
@@ -189,8 +193,8 @@ export async function exportCardsToJson(moduleId = 'mod1') {
 }
 
 /**
- * 导入卡片数据 (需要后端实现 /import 接口来批量替换数据)
- * 对应 Flask: POST /api/{moduleId}/import (需要在 app.py 中实现)
+ * 导入卡片数据
+ * 对应 Flask: POST /api/{moduleId}/import
  */
 export async function importCardsFromFile(file, moduleId = 'mod1') {
   try {
@@ -201,7 +205,17 @@ export async function importCardsFromFile(file, moduleId = 'mod1') {
       throw new Error('无效的 JSON 格式：必须是数组');
     }
     
-    // 【重要】假设后端有一个 /import 接口用于接收并替换全部数据
+    // 验证导入数据（可选，根据您的需求保留或移除）
+    cards.forEach((card, index) => {
+      if (moduleId === 'mod1' && !card.title) {
+        throw new Error(`第 ${index + 1} 张卡片缺少 title 字段`);
+      }
+      if (moduleId === 'mod2' && !card.scene) {
+        throw new Error(`第 ${index + 1} 张卡片缺少 scene 字段`);
+      }
+    });
+
+    // 通知后端清空当前数据并批量插入新数据
     const importResult = await apiFetch('POST', moduleId, '/import', { cards: cards }); 
     
     console.log(`✅ 成功导入 ${moduleId} 的 ${importResult.count} 张卡片`);
@@ -214,20 +228,19 @@ export async function importCardsFromFile(file, moduleId = 'mod1') {
 }
 
 /**
- * 重置为原始 JSON 数据 (需要后端实现 /reset 接口来删除持久化文件)
- * 对应 Flask: POST /api/{moduleId}/reset (需要在 app.py 中实现)
+ * 重置为原始 JSON 数据
+ * 对应 Flask: POST /api/{moduleId}/reset
  */
 export async function resetToOriginal(moduleId = 'mod1') {
   try {
-    // 1. 通知后端删除持久化文件/重置数据库
-    // 以前是：localStorage.removeItem(config.storageKey);
-    await apiFetch('POST', moduleId, '/reset');
+    // 通知后端清空数据库数据，并从本地 JSON 文件重新导入初始数据
+    const resetResult = await apiFetch('POST', moduleId, '/reset');
     
-    // 2. 重置后，重新加载数据以确认（此时后端会读取原始 JSON 文件）
+    // 重新加载数据以确认
     const cards = await loadCardsData(moduleId);
     
     console.log(`✅ ${moduleId} 已重置为原始数据 (${cards.length} 张卡片)`);
-    return { success: true, count: cards.length };
+    return { success: true, count: resetResult.count };
     
   } catch (error) {
     console.error(`❌ 重置 ${moduleId} 失败:`, error);
