@@ -1,37 +1,48 @@
-// cardManager.js - 前端卡片管理模块
+// cardManager.js - 前端卡片管理模块（支持多模块）
 // 用于添加、编辑、删除卡片，并保存到 localStorage
 
-const CARDS_STORAGE_KEY = 'mod1_cards_data';
-const CARDS_JSON_PATH = './mod1_cards.json';
+const STORAGE_KEY_PREFIX = 'cards_data_';
+
+// 模块配置
+const MODULE_CONFIGS = {
+  'mod1': {
+    jsonPath: './mod1_cards.json',
+    storageKey: STORAGE_KEY_PREFIX + 'mod1'
+  },
+  'mod2': {
+    jsonPath: './mod2_cards.json',
+    storageKey: STORAGE_KEY_PREFIX + 'mod2'
+  }
+};
 
 /**
- * 从 localStorage 加载卡片数据
- * 如果没有缓存，则从 JSON 文件加载
+ * 从 localStorage 加载指定模块的卡片数据
  */
-export async function loadCardsData() {
+export async function loadCardsData(moduleId = 'mod1') {
+  const config = MODULE_CONFIGS[moduleId];
+  if (!config) {
+    console.error(`未知的模块: ${moduleId}`);
+    return [];
+  }
+
   try {
-    // 先尝试从 localStorage 读取
-    const cached = localStorage.getItem(CARDS_STORAGE_KEY);
+    const cached = localStorage.getItem(config.storageKey);
     if (cached) {
-      console.log('📦 从 localStorage 加载卡片数据');
+      console.log(`📦 从 localStorage 加载 ${moduleId} 卡片数据`);
       return JSON.parse(cached);
     }
     
-    // 如果没有缓存，从 JSON 文件加载
-    console.log('📥 从 JSON 文件加载卡片数据');
-    const response = await fetch(CARDS_JSON_PATH);
+    console.log(`📥 从 JSON 文件加载 ${moduleId} 卡片数据`);
+    const response = await fetch(config.jsonPath);
     if (!response.ok) {
       throw new Error(`Failed to load cards: ${response.statusText}`);
     }
     
     const cards = await response.json();
-    
-    // 保存到 localStorage
-    saveCardsData(cards);
-    
+    saveCardsData(cards, moduleId);
     return cards;
   } catch (error) {
-    console.error('❌ 加载卡片数据失败:', error);
+    console.error(`❌ 加载 ${moduleId} 卡片数据失败:`, error);
     return [];
   }
 }
@@ -39,13 +50,19 @@ export async function loadCardsData() {
 /**
  * 保存卡片数据到 localStorage
  */
-export function saveCardsData(cards) {
+export function saveCardsData(cards, moduleId = 'mod1') {
+  const config = MODULE_CONFIGS[moduleId];
+  if (!config) {
+    console.error(`未知的模块: ${moduleId}`);
+    return false;
+  }
+
   try {
-    localStorage.setItem(CARDS_STORAGE_KEY, JSON.stringify(cards));
-    console.log('💾 卡片数据已保存到 localStorage');
+    localStorage.setItem(config.storageKey, JSON.stringify(cards));
+    console.log(`💾 ${moduleId} 卡片数据已保存到 localStorage`);
     return true;
   } catch (error) {
-    console.error('❌ 保存卡片数据失败:', error);
+    console.error(`❌ 保存 ${moduleId} 卡片数据失败:`, error);
     return false;
   }
 }
@@ -53,67 +70,78 @@ export function saveCardsData(cards) {
 /**
  * 生成新的卡片ID
  */
-function generateCardId(cards) {
-  // 找出当前最大的卡片编号
+function generateCardId(cards, moduleId) {
+  const prefix = `${moduleId}_card_`;
+  
   const maxNum = cards.reduce((max, card) => {
-    const match = card.cardId.match(/^mod1_card_(\d+)$/);
-    if (match) {
-      const num = parseInt(match[1], 10);
-      return Math.max(max, num);
+    if (card.cardId.startsWith(prefix)) {
+      const numStr = card.cardId.substring(prefix.length);
+      const num = parseInt(numStr, 10);
+      if (!isNaN(num)) {
+        return Math.max(max, num);
+      }
     }
     return max;
   }, 0);
   
-  return `mod1_card_${maxNum + 1}`;
+  return `${prefix}${maxNum + 1}`;
 }
 
 /**
  * 添加新卡片
  */
-export async function addCard(cardData) {
+export async function addCard(cardData, moduleId = 'mod1') {
   try {
-    const cards = await loadCardsData();
+    const cards = await loadCardsData(moduleId);
     
-    // 验证必填字段
-    if (!cardData.title) {
-      throw new Error('标题不能为空');
+    if (!cardData.title && !cardData.scene) {
+      throw new Error('标题或场景不能为空');
     }
     
-    // 生成新的卡片ID（如果没有提供）
-    const cardId = cardData.cardId || generateCardId(cards);
+    const cardId = cardData.cardId || generateCardId(cards, moduleId);
     
-    // 检查ID是否重复
     if (cards.some(c => c.cardId === cardId)) {
       throw new Error(`卡片 ID "${cardId}" 已存在`);
     }
     
-    // 创建完整的卡片对象（带默认值）
-    const newCard = {
-      cardId: cardId,
-      title: cardData.title,
-      Original: cardData.Original || '',
-      Tone: cardData.Tone || 'informal',
-      Explain: cardData.Explain || '',
-      Usage: cardData.Usage || '',
-      Extended: cardData.Extended || '',
-      Mysentence: cardData.Mysentence || '',
-      Corrected: cardData.Corrected || '',
-      ExplainCorrected: cardData.ExplainCorrected || '',
-      Fluency: cardData.Fluency || '1',
-      Createdtime: cardData.Createdtime || new Date().toLocaleDateString('en-US')
-    };
+    let newCard;
     
-    // 添加到数组
+    if (moduleId === 'mod1') {
+      newCard = {
+        cardId: cardId,
+        title: cardData.title,
+        Original: cardData.Original || '',
+        Tone: cardData.Tone || 'informal',
+        Explain: cardData.Explain || '',
+        Usage: cardData.Usage || '',
+        Extended: cardData.Extended || '',
+        Mysentence: cardData.Mysentence || '',
+        Corrected: cardData.Corrected || '',
+        ExplainCorrected: cardData.ExplainCorrected || '',
+        Fluency: cardData.Fluency || '1',
+        Createdtime: cardData.Createdtime || new Date().toLocaleDateString('en-US')
+      };
+    } else if (moduleId === 'mod2') {
+      newCard = {
+        cardId: cardId,
+        scene: cardData.scene || cardData.title,
+        Mysentence: cardData.Mysentence || '',
+        Corrected: cardData.Corrected || '',
+        Explain: cardData.Explain || '',
+        relatedCards: cardData.relatedCards || []
+      };
+    } else {
+      throw new Error(`不支持的模块类型: ${moduleId}`);
+    }
+    
     cards.push(newCard);
+    saveCardsData(cards, moduleId);
     
-    // 保存
-    saveCardsData(cards);
-    
-    console.log(`✅ 成功添加卡片: ${cardId}`);
+    console.log(`✅ 成功添加卡片到 ${moduleId}: ${cardId}`);
     return { success: true, cardId: cardId, card: newCard };
     
   } catch (error) {
-    console.error('❌ 添加卡片失败:', error);
+    console.error(`❌ 添加卡片到 ${moduleId} 失败:`, error);
     return { success: false, error: error.message };
   }
 }
@@ -121,27 +149,23 @@ export async function addCard(cardData) {
 /**
  * 更新卡片
  */
-export async function updateCard(cardId, updates) {
+export async function updateCard(cardId, updates, moduleId = 'mod1') {
   try {
-    const cards = await loadCardsData();
+    const cards = await loadCardsData(moduleId);
     
-    // 找到目标卡片
     const index = cards.findIndex(c => c.cardId === cardId);
     if (index === -1) {
       throw new Error(`未找到卡片: ${cardId}`);
     }
     
-    // 更新卡片数据
     cards[index] = { ...cards[index], ...updates };
+    saveCardsData(cards, moduleId);
     
-    // 保存
-    saveCardsData(cards);
-    
-    console.log(`✅ 成功更新卡片: ${cardId}`);
+    console.log(`✅ 成功更新 ${moduleId} 卡片: ${cardId}`);
     return { success: true, card: cards[index] };
     
   } catch (error) {
-    console.error('❌ 更新卡片失败:', error);
+    console.error(`❌ 更新 ${moduleId} 卡片失败:`, error);
     return { success: false, error: error.message };
   }
 }
@@ -149,63 +173,58 @@ export async function updateCard(cardId, updates) {
 /**
  * 删除卡片
  */
-export async function deleteCard(cardId) {
+export async function deleteCard(cardId, moduleId = 'mod1') {
   try {
-    const cards = await loadCardsData();
+    const cards = await loadCardsData(moduleId);
     
-    // 找到目标卡片
     const index = cards.findIndex(c => c.cardId === cardId);
     if (index === -1) {
       throw new Error(`未找到卡片: ${cardId}`);
     }
     
-    // 删除卡片
     cards.splice(index, 1);
+    saveCardsData(cards, moduleId);
     
-    // 保存
-    saveCardsData(cards);
-    
-    console.log(`✅ 成功删除卡片: ${cardId}`);
+    console.log(`✅ 成功删除 ${moduleId} 卡片: ${cardId}`);
     return { success: true };
     
   } catch (error) {
-    console.error('❌ 删除卡片失败:', error);
+    console.error(`❌ 删除 ${moduleId} 卡片失败:`, error);
     return { success: false, error: error.message };
   }
 }
 
 /**
- * 导出卡片数据（用于备份）
+ * 导出卡片数据
  */
-export async function exportCardsToJson() {
+export async function exportCardsToJson(moduleId = 'mod1') {
   try {
-    const cards = await loadCardsData();
+    const cards = await loadCardsData(moduleId);
     
-    // 创建下载链接
     const dataStr = JSON.stringify(cards, null, 2);
     const blob = new Blob([dataStr], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     
     const a = document.createElement('a');
     a.href = url;
-    a.download = `mod1_cards_backup_${Date.now()}.json`;
+    a.download = `${moduleId}_cards_backup_${Date.now()}.json`;
     a.click();
     
     URL.revokeObjectURL(url);
     
-    console.log('✅ 卡片数据已导出');
+    console.log(`✅ ${moduleId} 卡片数据已导出`);
     return { success: true };
     
   } catch (error) {
-    console.error('❌ 导出失败:', error);
+    console.error(`❌ 导出 ${moduleId} 失败:`, error);
     return { success: false, error: error.message };
   }
 }
 
 /**
- * 导入卡片数据（从文件）
+ * 导入卡片数据
  */
-export async function importCardsFromFile(file) {
+export async function importCardsFromFile(file, moduleId = 'mod1') {
   try {
     const text = await file.text();
     const cards = JSON.parse(text);
@@ -214,21 +233,25 @@ export async function importCardsFromFile(file) {
       throw new Error('无效的 JSON 格式：必须是数组');
     }
     
-    // 验证每张卡片的基本结构
     cards.forEach((card, index) => {
-      if (!card.cardId || !card.title) {
-        throw new Error(`第 ${index + 1} 张卡片缺少必填字段`);
+      if (!card.cardId) {
+        throw new Error(`第 ${index + 1} 张卡片缺少 cardId 字段`);
+      }
+      if (moduleId === 'mod1' && !card.title) {
+        throw new Error(`第 ${index + 1} 张卡片缺少 title 字段`);
+      }
+      if (moduleId === 'mod2' && !card.scene) {
+        throw new Error(`第 ${index + 1} 张卡片缺少 scene 字段`);
       }
     });
     
-    // 保存
-    saveCardsData(cards);
+    saveCardsData(cards, moduleId);
     
-    console.log(`✅ 成功导入 ${cards.length} 张卡片`);
+    console.log(`✅ 成功导入 ${moduleId} 的 ${cards.length} 张卡片`);
     return { success: true, count: cards.length };
     
   } catch (error) {
-    console.error('❌ 导入失败:', error);
+    console.error(`❌ 导入 ${moduleId} 失败:`, error);
     return { success: false, error: error.message };
   }
 }
@@ -236,19 +259,21 @@ export async function importCardsFromFile(file) {
 /**
  * 重置为原始 JSON 数据
  */
-export async function resetToOriginal() {
+export async function resetToOriginal(moduleId = 'mod1') {
+  const config = MODULE_CONFIGS[moduleId];
+  if (!config) {
+    return { success: false, error: `未知的模块: ${moduleId}` };
+  }
+
   try {
-    // 清除 localStorage
-    localStorage.removeItem(CARDS_STORAGE_KEY);
+    localStorage.removeItem(config.storageKey);
+    const cards = await loadCardsData(moduleId);
     
-    // 重新从 JSON 文件加载
-    const cards = await loadCardsData();
-    
-    console.log(`✅ 已重置为原始数据 (${cards.length} 张卡片)`);
+    console.log(`✅ ${moduleId} 已重置为原始数据 (${cards.length} 张卡片)`);
     return { success: true, count: cards.length };
     
   } catch (error) {
-    console.error('❌ 重置失败:', error);
+    console.error(`❌ 重置 ${moduleId} 失败:`, error);
     return { success: false, error: error.message };
   }
 }
@@ -256,15 +281,15 @@ export async function resetToOriginal() {
 /**
  * 获取所有卡片
  */
-export async function getAllCards() {
-  return await loadCardsData();
+export async function getAllCards(moduleId = 'mod1') {
+  return await loadCardsData(moduleId);
 }
 
 /**
  * 根据ID获取单张卡片
  */
-export async function getCardById(cardId) {
-  const cards = await loadCardsData();
+export async function getCardById(cardId, moduleId = 'mod1') {
+  const cards = await loadCardsData(moduleId);
   return cards.find(c => c.cardId === cardId) || null;
 }
 

@@ -326,6 +326,7 @@
       
       <form id="cardEditorForm">
         <input type="hidden" id="editingCardId" value="">
+        <input type="hidden" id="editingModuleId" value="">
         
         <div class="form-group">
           <label for="cardTitle">📝 标题 *</label>
@@ -374,6 +375,11 @@
         <div class="form-group">
           <label for="cardExplainCorrected">💬 Explain Corrected</label>
           <textarea id="cardExplainCorrected" rows="2" placeholder="纠正说明"></textarea>
+        </div>
+        
+        <div class="form-group" id="formGroupRelatedCards" style="display:none;">
+          <label for="cardRelatedCards">🔗 Related Cards (用逗号分隔)</label>
+          <input type="text" id="cardRelatedCards" placeholder="例: mod1_card_1, mod1_card_3">
         </div>
         
         <div class="form-actions">

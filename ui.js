@@ -188,7 +188,23 @@ function render(){
 
   // 更新按钮文本
   btnShow.textContent = showBack ? 'Show less' : 'Show more';
+  updateManagementButtonsVisibility();
 }
+
+function updateManagementButtonsVisibility() {
+  const currentModuleId = getCurrentModuleId();
+  const managementSection = document.querySelector('.card-management');
+  
+  if (managementSection) {
+    // 只有在 mod1 或 mod2 时显示按钮
+    if (currentModuleId === 'mod1' || currentModuleId === 'mod2') {
+      managementSection.style.display = 'flex';
+    } else {
+      managementSection.style.display = 'none';
+    }
+  }
+}
+
 
 // ========== 同步下拉框选中状态 ==========
 function syncSelectValues() {
@@ -239,4 +255,5 @@ btnBack.onclick = () => {
 // ========== 调试 ==========
 window.debugGetCurrentCard = getCurrentCard;
 window.debugRender = render;
-window.fillCardOptions = fillCardOptions;  // 暴露填充卡片选项的函数
+window.fillCardOptions = fillCardOptions;  
+window.setModule = setModule;  

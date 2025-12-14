@@ -131,14 +131,15 @@ export async function loadCards() {
       const moduleId = module.moduleId;
       let rawCards;
       
-      // ⭐ 核心修改：对于 mod1，使用 cardManager 加载（支持 localStorage）
-      if (moduleId === 'mod1') {
-        rawCards = await loadCardsData();
+      // ⭐ 使用 cardManager 加载数据（支持 localStorage）
+      // mod1 和 mod2 都使用 localStorage
+      if (moduleId === 'mod1' || moduleId === 'mod2') {
+        rawCards = await loadCardsData(moduleId);  // 传入 moduleId
       } else {
         // 其他模块仍从 JSON 文件加载
         const dataPath = module.dataFile;
         if (!dataPath) {
-          console.warn(`⚠️ Module ${module.moduleId} has no dataFile specified.`);
+          console.warn(`⚠️ Module ${moduleId} has no dataFile specified.`);
           return [];
         }
         rawCards = await fetchJson(dataPath);
@@ -163,7 +164,7 @@ export async function loadCards() {
 
   // 4. 等待所有卡片数据加载完成并合并
   const allCardArrays = await Promise.all(loadPromises);
-  allCards = allCardArrays.flat(); // 使用 flat() 将二维数组展平成一维
+  allCards = allCardArrays.flat();
   
   // 5. 初始化状态
   setModule('');
