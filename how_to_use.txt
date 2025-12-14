@@ -1,0 +1,7 @@
+python app.py   //start flask
+
+
+python -m http.server 8080   //start html
+
+
+http://localhost:8080/index.html    //open html
