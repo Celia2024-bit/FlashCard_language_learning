@@ -217,6 +217,10 @@ async function handleFormSubmit(e) {
       window.fillCardOptions();
     }
     
+    if (window.fillModuleOptions) {
+      window.fillModuleOptions();
+    }
+    
     // 刷新UI
     if (window.debugRender) {
       window.debugRender();
@@ -257,6 +261,10 @@ export async function deleteCurrentCard() {
     }
     
     // 刷新卡片列表下拉框
+    if (window.fillCardOptions) {
+      window.fillCardOptions();
+    }
+    
     if (window.fillCardOptions) {
       window.fillCardOptions();
     }

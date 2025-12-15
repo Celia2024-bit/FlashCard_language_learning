@@ -256,4 +256,5 @@ btnBack.onclick = () => {
 window.debugGetCurrentCard = getCurrentCard;
 window.debugRender = render;
 window.fillCardOptions = fillCardOptions;  
-window.setModule = setModule;  
+window.setModule = setModule; 
+window.fillModuleOptions = fillModuleOptions;  
