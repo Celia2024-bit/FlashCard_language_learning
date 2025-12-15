@@ -12,3 +12,6 @@ Flask
 flask-cors
 gunicorn
 requests
+
+
+https://supabase.com/dashboard/project/aefuqtzueqwjfhebfhrg/editor/17498
