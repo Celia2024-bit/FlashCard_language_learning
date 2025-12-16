@@ -31,11 +31,12 @@ function updateFormFields(moduleId) {
     'cardOriginal', 'cardTone', 'cardExplain', 
     'cardUsage', 'cardExtended', 'cardExplainCorrected'
   ];
-  
+  const picker = document.getElementById('referencePicker');
   // Module 2 专属字段
   const mod2Fields = ['cardScene', 'cardRelatedCards'];
   
   if (moduleId === 'mod1') {
+    if (picker) picker.style.display = 'none';
     // 显示 Module 1 字段
     mod1Fields.forEach(id => {
       const field = document.getElementById(id);
@@ -53,6 +54,7 @@ function updateFormFields(moduleId) {
     if (titleLabel) titleLabel.textContent = '📝 标题 *';
     
   } else if (moduleId === 'mod2') {
+    if (picker) picker.style.display = 'block';
     // 隐藏 Module 1 专属字段
     mod1Fields.forEach(id => {
       const field = document.getElementById(id);
@@ -88,6 +90,9 @@ export function openCardEditor() {
   
   // 显示模态框
   document.getElementById('cardEditorModal').style.display = 'flex';
+  if (moduleId === 'mod2') {
+    renderReferencePicker();
+  }
 }
 
 /**
@@ -139,6 +144,9 @@ export async function openCardEditorForEdit(cardId) {
   
   // 显示模态框
   document.getElementById('cardEditorModal').style.display = 'flex';
+  if (moduleId === 'mod2') {
+    renderReferencePicker();
+  }
 }
 
 /**
@@ -385,6 +393,73 @@ export async function editCurrentCard() {
   }
   
   await openCardEditorForEdit(currentCard.cardId);
+}
+
+
+/**
+ * 渲染 Mod1 引用选择器 (显示标题，保存 ID)
+ */
+export async function renderReferencePicker() {
+  const pickerContainer = document.getElementById('pickerTags');
+  const selectedContainer = document.getElementById('selectedRelatedTitles');
+  const hiddenInput = document.getElementById('cardRelatedCards');
+  
+  if (!pickerContainer || !selectedContainer) return;
+  
+  // 1. 获取所有 Mod1 卡片用于匹配
+  const mod1Cards = await getAllCards('mod1');
+  
+  // 2. 获取当前已选中的 ID 数组
+  let selectedIds = hiddenInput.value 
+    ? hiddenInput.value.split(',').map(s => s.trim()).filter(id => id) 
+    : [];
+
+  // --- 函数 A: 渲染已选中的标题标签 ---
+  const renderSelectedLabels = () => {
+    selectedContainer.innerHTML = '';
+    selectedIds.forEach(id => {
+      const card = mod1Cards.find(c => c.cardId === id);
+      if (card) {
+        const span = document.createElement('span');
+        span.className = 'selected-tag';
+        span.innerHTML = `${card.title} <i onclick="this.parentElement.dataset.triggerId='${id}'">×</i>`;
+        // 点击小叉叉移除
+        span.onclick = () => handleToggle(id);
+        selectedContainer.appendChild(span);
+      }
+    });
+    // 同步到隐藏输入框
+    hiddenInput.value = selectedIds.join(', ');
+  };
+
+  // --- 函数 B: 处理点击切换 ---
+  const handleToggle = (id) => {
+    if (selectedIds.includes(id)) {
+      selectedIds = selectedIds.filter(i => i !== id);
+    } else {
+      selectedIds.push(id);
+    }
+    renderSelectedLabels();
+    renderPickerList(); // 重新渲染列表以更新选中状态样式
+  };
+
+  // --- 函数 C: 渲染待选列表 ---
+  const renderPickerList = () => {
+    pickerContainer.innerHTML = '';
+    mod1Cards.forEach(card => {
+      const isSelected = selectedIds.includes(card.cardId);
+      const item = document.createElement('div');
+      item.className = `tag-item ${isSelected ? 'selected' : ''}`;
+      // 这里显示的是标题！
+      item.textContent = card.title || card.cardId;
+      item.onclick = () => handleToggle(card.cardId);
+      pickerContainer.appendChild(item);
+    });
+  };
+
+  // 初始执行
+  renderSelectedLabels();
+  renderPickerList();
 }
 
 // 初始化：绑定表单提交事件
