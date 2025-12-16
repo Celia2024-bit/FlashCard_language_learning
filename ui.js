@@ -13,10 +13,12 @@ import {
   prev,
   shuffle,
   goBack,
-  jumpToCardById
+  jumpToCardById,
+  refreshReviewList
 } from './app.js';
 import { buildDiffHTML } from './diff.js';
 import { escapeHtml } from './util.js';
+import { learnCardSrs } from './cardManager.js';
 
 // DOM 元素引用
 const statusEl     = document.getElementById('status');
@@ -35,6 +37,7 @@ const btnBack      = document.getElementById('back');
   try {
     await loadCards();
     fillModuleOptions();
+    await refreshReviewList('mod1');
     fillCardOptions(); // 初始化时填充卡片选项
     render();
   } catch (e) {
@@ -226,6 +229,12 @@ function syncSelectValues() {
 btnShow.onclick = () => {
   toggleBack();
   render();
+  const status = getStatus();
+  // 如果当前是复习模式且显示了背面
+  if (status.currentModuleId === 'review' && status.showBack) {
+    console.log("触发 SRS 复习记录...");
+    await learnCardSrs(status.currentCardId);
+  }
 };
 
 btnPrev.onclick = () => {

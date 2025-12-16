@@ -1,4 +1,5 @@
 // app.js - 重构版：添加 Review 模式支持
+import { loadCardsData, getSrsTodayList } from './cardManager.js';
 const KEY = 'flashcards_state_v1';
 
 let modules = [];           // 所有模块信息
@@ -10,12 +11,7 @@ let currentModuleId = '';   // 当前选择的 moduleId（空表示全部，'rev
 let history = [];           // 导航历史记录
 
 // Review 模式的卡片列表（可以从外部设置）
-let reviewCardIds = [
-    'mod1_card_1',  // I was inundated with A
-    'mod1_card_3',  // I was A when B happens
-    'mod1_card_6',  // talk science without jargon
-    'mod1_card_10'  // Get real with sb about sth
-];
+let reviewCardIds = [];
 
 import { addDays, stripTime } from './util.js';
 import { loadCardsData } from './cardManager.js';
@@ -25,6 +21,17 @@ import { loadCardsData } from './cardManager.js';
  * 设置 Review 模式的卡片列表
  * @param {Array<string>} cardIds - 卡片ID数组
  */
+export async function refreshReviewList(moduleId = 'mod1') {
+  try {
+    const cards = await getSrsTodayList(moduleId);
+    // 提取 ID 存入 app.js 的变量中
+    reviewCardIds = cards.map(c => c.card_id || c.cardId); 
+    console.log("🚀 SRS 复习清单初始化完成，今日待复习:", reviewCardIds.length);
+  } catch (err) {
+    console.error("初始化 SRS 清单失败:", err);
+  }
+}
+
 export function setReviewCardIds(cardIds) {
   if (Array.isArray(cardIds)) {
     reviewCardIds = cardIds;
