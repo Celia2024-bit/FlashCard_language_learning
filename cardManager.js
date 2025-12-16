@@ -338,14 +338,92 @@ export async function getCardById(cardId, moduleId = 'mod1') {
   return cards.find(c => c.cardId === cardId) || null;
 }
 
+
+/**
+ * 1. 获取今日 SRS 必学清单 (得到 review list)
+ */
+export async function getSrsTodayList(moduleId = 'mod1') {
+  try {
+    const response = await fetch(`${API_BASE_URL}/${moduleId}/srs/today`);
+    
+    if (!response.ok) {
+      throw new Error(`无法获取 SRS 清单: ${response.status}`);
+    }
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      console.log(`📅 获取到 ${moduleId} 今日必学卡片: ${result.count} 张`);
+      return result.cards; // 返回卡片数组
+    } else {
+      throw new Error(result.error);
+    }
+  } catch (error) {
+    console.error(`❌ 获取 SRS 清单失败:`, error);
+    return [];
+  }
+}
+
+/**
+ * 2. 触发卡片“实战引用”更新 (use card)
+ * 对应后端的 calculate_state_after_application 逻辑
+ */
+export async function useCardSrs(cardId, moduleId = 'mod1') {
+  try {
+    const response = await fetch(`${API_BASE_URL}/${moduleId}/srs/use/${cardId}`, {
+      method: 'POST'
+    });
+    
+    const result = await response.json();
+    
+    if (!response.ok || !result.success) {
+      throw new Error(result.error || 'Failed to update usage state');
+    }
+    
+    console.log(`✅ 卡片 ${cardId} 实战引用已更新 (LAD 已重置, N 已累加)`);
+    return { success: true, newState: result.new_state };
+    
+  } catch (error) {
+    console.error(`❌ 更新卡片引用状态失败:`, error);
+    return { success: false, error: error.message };
+  }
+}
+
+/**
+ * 3. 触发卡片“主动复习”更新 (learn card)
+ */
+export async function learnCardSrs(cardId, moduleId = 'mod1') {
+    try {
+      const response = await fetch(`${API_BASE_URL}/${moduleId}/srs/learn/${cardId}`, {
+        method: 'POST'
+      });
+      
+      const result = await response.json();
+      
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || 'Failed to update review state');
+      }
+      
+      console.log(`✅ 卡片 ${cardId} 主动复习已更新 (LRD 已重置)`);
+      return { success: true, newState: result.new_state };
+      
+    } catch (error) {
+      console.error(`❌ 更新卡片复习状态失败:`, error);
+      return { success: false, error: error.message };
+    }
+  }
+  
 // 暴露到全局（方便调试）
-window.cardManager = {
-  addCard,
-  updateCard,
-  deleteCard,
-  getAllCards,
-  getCardById,
-  exportCardsToJson,
-  importCardsFromFile,
-  resetToOriginal
-};
+if (typeof window !== 'undefined') {
+  window.cardManager = {
+    addCard,
+    updateCard,
+    deleteCard,
+    exportCardsToJson,
+    importCardsFromFile,
+    resetToOriginal,
+    getSrsTodayList,
+    useCardSrs,
+    learnCardSrs
+  };
+}
