@@ -35,9 +35,9 @@ const btnBack      = document.getElementById('back');
 // ========== 初始化 ==========
 (async function init(){
   try {
+    await refreshReviewList('mod1');
     await loadCards();
     fillModuleOptions();
-    await refreshReviewList('mod1');
     fillCardOptions(); // 初始化时填充卡片选项
     render();
   } catch (e) {
