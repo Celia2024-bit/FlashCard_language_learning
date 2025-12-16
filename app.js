@@ -14,6 +14,15 @@ let history = [];           // 导航历史记录
 let reviewCardIds = [];
 
 import { addDays, stripTime } from './util.js';
+
+/**
+ * 根据 cardId 获取卡片标题
+ */
+export function getCardTitleById(cardId) {
+  const card = allCards.find(c => c.cardId === cardId);
+  return card ? (card.title || cardId) : cardId;
+}
+
 /* ========== Review 模式管理 ========== */
 
 /**

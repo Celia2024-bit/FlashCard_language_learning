@@ -14,7 +14,8 @@ import {
   shuffle,
   goBack,
   jumpToCardById,
-  refreshReviewList
+  refreshReviewList,
+  getCardTitleById
 } from './app.js';
 import { buildDiffHTML } from './diff.js';
 import { escapeHtml } from './util.js';
@@ -165,9 +166,11 @@ function render(){
     
     // 如果是 Module 2，显示关联卡片
     if (c.relatedCards && c.relatedCards.length > 0) {
-      backHtml += `\n<div>🔗 关联知识点：\n`;
+      backHtml += `\n<div class="related-section">🔗 关联知识点：\n`; // 建议加个 class 方便调样式
       c.relatedCards.forEach(cardId => {
-        backHtml += `<a href="#" class="related-link" data-card-id="${cardId}">${cardId}</a> `;
+        // ⭐ 关键点：调用函数获取标题
+        const title = getCardTitleById(cardId);
+        backHtml += `<a href="#" class="related-link" data-card-id="${cardId}" title="ID: ${cardId}">${escapeHtml(title)}</a> `;
       });
       backHtml += `</div>`;
     }
