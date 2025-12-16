@@ -201,6 +201,21 @@ async function handleFormSubmit(e) {
   }
   
   if (result.success) {
+    if (moduleId === 'mod2' && cardData.relatedCards && cardData.relatedCards.length > 0) 
+    {
+      for (const refId of cardData.relatedCards) 
+      {
+          try 
+          {
+             console.log(`🔗 自动同步引用状态: ${refId}`);
+             await window.cardManager.useCardSrs(refId, 'mod1');
+          } catch (err) 
+          {
+             console.warn(`⚠️ 无法同步引用卡片 ${refId}:`, err);
+          }
+      }
+    }
+    
     alert(editingCardId ? '✅ 卡片更新成功！' : '✅ 卡片添加成功！');
     closeCardEditor();
     
