@@ -226,14 +226,21 @@ function syncSelectValues() {
 }
 
 // ========== 事件绑定 ==========
-btnShow.onclick = () => {
+btnShow.onclick = async () => {
   toggleBack();
   render();
+  
   const status = getStatus();
+  
   // 如果当前是复习模式且显示了背面
   if (status.currentModuleId === 'review' && status.showBack) {
     console.log("触发 SRS 复习记录...");
-    await learnCardSrs(status.currentCardId);
+    // 现在这里可以使用 await 了
+    try {
+      await learnCardSrs(status.currentCardId);
+    } catch (err) {
+      console.error("更新复习进度失败:", err);
+    }
   }
 };
 

@@ -14,7 +14,6 @@ let history = [];           // 导航历史记录
 let reviewCardIds = [];
 
 import { addDays, stripTime } from './util.js';
-import { loadCardsData } from './cardManager.js';
 /* ========== Review 模式管理 ========== */
 
 /**
