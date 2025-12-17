@@ -211,16 +211,35 @@ async function handleFormSubmit(e) {
   if (result.success) {
     if (moduleId === 'mod2' && cardData.relatedCards && cardData.relatedCards.length > 0) 
     {
-      for (const refId of cardData.relatedCards) 
-      {
-          try 
-          {
-             console.log(`🔗 自动同步引用状态: ${refId}`);
-             await window.cardManager.useCardSrs(refId, 'mod1');
-          } catch (err) 
-          {
-             console.warn(`⚠️ 无法同步引用卡片 ${refId}:`, err);
-          }
+      // 获取原有的 relatedCards（编辑模式时）
+      let oldRelatedCards = [];
+      if (editingCardId) {
+        const cards = await getAllCards(moduleId);
+        const oldCard = cards.find(c => c.cardId === editingCardId);
+        oldRelatedCards = oldCard?.relatedCards || [];
+      }
+      
+      // 找出新增的 reference cards
+      const newRelatedCards = cardData.relatedCards.filter(
+        refId => !oldRelatedCards.includes(refId)
+      );
+      
+      // 只对新增的 reference cards 触发 useCardSrs
+      if (newRelatedCards.length > 0) {
+        console.log(`🆕 检测到新增引用卡片: ${newRelatedCards.join(', ')}`);
+        for (const refId of newRelatedCards) 
+        {
+            try 
+            {
+               console.log(`🔗 自动同步引用状态: ${refId}`);
+               await window.cardManager.useCardSrs(refId, 'mod1');
+            } catch (err) 
+            {
+               console.warn(`⚠️ 无法同步引用卡片 ${refId}:`, err);
+            }
+        }
+      } else if (editingCardId) {
+        console.log(`ℹ️ 引用卡片未变化，跳过同步`);
       }
     }
     
