@@ -86,8 +86,17 @@ function fillCardOptions(){
     cardSelect.remove(1);
   }
   
+  // 根据 cardId 最后的数字排序
+  const sortedCards = cards.slice().sort((a, b) => {
+    const getLastNumber = (cardId) => {
+      const match = cardId.match(/_(\d+)$/);
+      return match ? parseInt(match[1]) : 0;
+    };
+    return getLastNumber(a.cardId) - getLastNumber(b.cardId);
+  });
+  
   // 添加当前 Module 的所有卡片
-  cards.forEach(c => {
+  sortedCards.forEach(c => {
     const opt = document.createElement('option');
     opt.value = c.cardId;
     opt.text  = c.title;
