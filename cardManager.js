@@ -1,7 +1,12 @@
 // cardManager.js - 前端卡片管理模块（支持多模块 + Supabase）
 // 用于添加、编辑、删除卡片，并通过 API 与 Supabase 通信
+// own backend 
 // const API_BASE_URL = 'http://localhost:5000/api';
-const API_BASE_URL = 'https://flashcard-backend-3rb5.onrender.com/api';
+// const API_BASE_URL = 'https://flashcard-backend-3rb5.onrender.com/api';
+// shared backend 
+//const API_BASE_URL = 'http://127.0.0.1:5000/api/flashcard';
+const API_BASE_URL = 'https://backend-all-6q0a.onrender.com/api/flashcard';
+
 
 // 模块配置
 const MODULE_CONFIGS = {
